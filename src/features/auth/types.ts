@@ -1,0 +1,15 @@
+export type UserRole = "STUDENT" | "PROFESSOR";
+
+export interface AuthUser {
+  id: string;
+  fullName: string;
+  role: UserRole;
+  university: string;
+  faculty: string;
+  avatarLabel: string;
+}
+
+export interface AuthSession {
+  user: AuthUser;
+  mode: "DEMO";
+}
