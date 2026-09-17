@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## UniLoop AI
 
-## Getting Started
+UniLoop AI talabalarning o‘qishi, dalillari va kasbiy rivojlanishini uzluksiz qo‘llab-quvvatlaydigan sun’iy intellektga tayyor ta’lim tizimidir.
 
-First, run the development server:
+### Texnologiyalar
+
+- Next.js App Router, React va TypeScript
+- Tailwind CSS 4 va shadcn/ui
+- TanStack Query, Zod, React Hook Form va Zustand
+- Recharts, Lucide React va date-fns
+
+### Mahalliy ishga tushirish
+
+Node.js LTS o‘rnatilgan bo‘lishi kerak.
 
 ```bash
+npm install
+cp .env.example .env.local
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Brauzerda [http://localhost:3000](http://localhost:3000) manzilini oching.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Sifat tekshiruvlari:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run lint
+npm run validate:data
+npx tsc --noEmit
+npm run build
+```
 
-## Learn More
+### Muhit o‘zgaruvchilari
 
-To learn more about Next.js, take a look at the following resources:
+| O‘zgaruvchi | Tavsif |
+| --- | --- |
+| `NEXT_PUBLIC_USE_MOCKS` | Mock rejimini yoqadi yoki o‘chiradi. |
+| `NEXT_PUBLIC_MOCK_SCENARIO` | `populated`, `empty` yoki `error`; standart qiymat `populated`. |
+| `NEXT_PUBLIC_API_URL` | Kelajakdagi NestJS backend manzili; standart qiymat `http://localhost:5001/api/v1`. |
+| `NEXT_PUBLIC_STUDENT_SURVEY_URL` | Talabalar so‘rovnomasi manzili; hozircha bo‘sh bo‘lishi mumkin. |
+| `NEXT_PUBLIC_PROFESSOR_SURVEY_URL` | Professor-o‘qituvchilar so‘rovnomasi manzili; hozircha bo‘sh bo‘lishi mumkin. |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Loyihalash qoidalari
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Kod identifikatorlari ingliz tilida, foydalanuvchiga ko‘rinadigan barcha matnlar esa markazlashtirilgan Uzbek Latin lokalizatsiyasida saqlanadi. Integratsiyalar mock-first tamoyiliga amal qiladi: UI backend ma’lumotlariga bog‘lanmasdan ishlaydi, keyingi bosqichlarda typed API qatlam orqali ulanadi.
 
-## Deploy on Vercel
+### Hozirgi holat
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Phase 1 dizayn, lokalizatsiya, muhit konfiguratsiyasi va providerlar asosini yaratdi. Phase 2 demo rollari, himoyalangan yo‘nalishlar, umumiy qobiq va mobil navigatsiyani qo‘shdi. Phase 3 typed domen modellari, tekshiriladigan DTOlar, HTTP/mock transportlar, izchil sintetik ma’lumotlar va Query/Mutation hooklarini qo‘shdi.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Joriy sahifalar hali ixcham boshlang‘ich ko‘rinishlardir. To‘liq dashboardlar, haqiqiy backend autentifikatsiyasi va AI funksiyalari keyingi bosqichlarga tegishli. Yangi data hooklari hali sahifalarga ulanmagan.
+
+Backend bilan kelishiladigan yo‘nalish va DTOlar: [frontend API shartnomasi](docs/frontend-api-contract.md). Mock mutatsiyalar xotirada saqlanadi; sahifani to‘liq yangilash boshlang‘ich ma’lumotlarni tiklaydi. Tanlangan demo roli esa lokal xotirada saqlanadi.
+
+Ma’lum sandbox Turbopack worker ruxsati muammosi yuz bersa, `npm run build -- --webpack` orqali ishlab chiqarish buildini tekshiring.
+
+Keyingi rejalashtirilgan bosqich: talabalar uchun akademik ish jarayonlari.
+# UniLoop-AI-Front-end
