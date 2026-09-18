@@ -124,10 +124,27 @@ export function handleMockRequest(
       };
     case "mastery":
       return {
-        data: required(
-          db.masteries,
-          (item) => item.courseId === courseId && item.studentId === studentId,
-        ),
+        data: (() => {
+          const mastery = required(
+            db.masteries,
+            (item) =>
+              item.courseId === courseId && item.studentId === studentId,
+          );
+          return {
+            ...mastery,
+            outcomes: mastery.outcomes.map((outcome) => ({
+              ...outcome,
+              misconceptionDescriptions: outcome.misconceptionIds.flatMap(
+                (id) => {
+                  const misconception = db.misconceptions.find(
+                    (item) => item.id === id,
+                  );
+                  return misconception ? [misconception.description] : [];
+                },
+              ),
+            })),
+          };
+        })(),
       };
     case "learningPlan":
       return {

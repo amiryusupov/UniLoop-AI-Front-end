@@ -31,8 +31,10 @@ export interface QuestionFeedback {
   questionId: string;
   outcomeId: string;
   correct: boolean;
+  correctAnswer: string;
   explanation: string;
   misconceptionId: string | null;
+  misconception: string | null;
 }
 export interface OutcomeImpact {
   outcomeId: string;

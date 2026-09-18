@@ -47,8 +47,10 @@ export const submissionResultSchema = z.object({
       questionId: idSchema,
       outcomeId: idSchema,
       correct: z.boolean(),
+      correctAnswer: z.string(),
       explanation: z.string(),
       misconceptionId: idSchema.nullable(),
+      misconception: z.string().nullable(),
     }),
   ),
   outcomeImpacts: z.array(

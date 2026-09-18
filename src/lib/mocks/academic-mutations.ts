@@ -134,7 +134,7 @@ export function academicMutation(
               }
             : {
                 label: "Rivojlanish rejasini ko‘rish",
-                href: `/student/courses/${assessment.courseId}/learning-plan`,
+                href: `/student/learning-plan/${assessment.courseId}`,
               },
       };
       db.submissions = db.submissions.filter(

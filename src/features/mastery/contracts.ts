@@ -19,6 +19,7 @@ export const masterySchema = z.object({
       change: z.number().min(-100).max(100),
       evidence: z.array(evidenceSchema),
       misconceptionIds: z.array(idSchema),
+      misconceptionDescriptions: z.array(z.string()).optional(),
       nextAction: z.string(),
     }),
   ),

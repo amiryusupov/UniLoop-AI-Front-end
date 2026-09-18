@@ -23,6 +23,7 @@ export interface OutcomeMastery {
   change: number;
   evidence: EvidenceSource[];
   misconceptionIds: string[];
+  misconceptionDescriptions?: string[];
   nextAction: string;
 }
 export interface MasterySummary {

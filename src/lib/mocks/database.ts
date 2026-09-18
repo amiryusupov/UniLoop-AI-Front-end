@@ -70,10 +70,17 @@ export function createMockDatabase(): MockDatabase {
           questionId: question.id,
           outcomeId: question.outcomeId,
           correct,
+          correctAnswer:
+            question.type === "MULTIPLE_CHOICE"
+              ? (question.options.find(
+                  (option) => option.id === rule.correctOptionId,
+                )?.text ?? "")
+              : (rule.acceptedAnswers[0] ?? rule.requiredTerms.join(" va ")),
           explanation: correct
             ? rule.correctExplanation
             : rule.incorrectExplanation,
           misconceptionId: correct ? null : rule.misconceptionId,
+          misconception: correct ? null : rule.incorrectExplanation,
         };
       });
       return {
@@ -97,7 +104,7 @@ export function createMockDatabase(): MockDatabase {
           "Chaqiriqlar tartibi va to‘liq yechim bo‘yicha natijalar o‘quv natijalariga bog‘landi.",
         nextRecommendedAction: {
           label: "Rivojlanish rejasini ko‘rish",
-          href: `/student/courses/${course.id}/learning-plan`,
+          href: `/student/learning-plan/${course.id}`,
         },
       };
     },
@@ -117,8 +124,17 @@ export function createMockDatabase(): MockDatabase {
       questionId: question.id,
       outcomeId: question.outcomeId,
       correct: true,
+      correctAnswer:
+        question.type === "MULTIPLE_CHOICE"
+          ? (question.options.find(
+              (option) =>
+                option.id === gradingRules[question.id].correctOptionId,
+            )?.text ?? "")
+          : (gradingRules[question.id].acceptedAnswers[0] ??
+            gradingRules[question.id].requiredTerms.join(" va ")),
       explanation: gradingRules[question.id].correctExplanation,
       misconceptionId: null,
+      misconception: null,
     }));
     submissions.push({
       id: `submission-follow-up-${mastery.studentId}`,
@@ -189,7 +205,7 @@ export function createMockDatabase(): MockDatabase {
         status: "NOT_STARTED",
         estimatedMinutes: 12,
         reason: "Mashqdan keyingi o‘zgarishni tekshirish.",
-        actionTarget: `/student/courses/${course.id}/assessments/${followUp.id}`,
+        actionTarget: `/student/assessments/${followUp.id}`,
       },
     ],
   };

@@ -40,10 +40,16 @@ export function gradeAnswers(
       questionId: question.id,
       outcomeId: question.outcomeId,
       correct,
+      correctAnswer:
+        question.type === "MULTIPLE_CHOICE"
+          ? (question.options.find((item) => item.id === rule.correctOptionId)
+              ?.text ?? "")
+          : (rule.acceptedAnswers[0] ?? rule.requiredTerms.join(" va ")),
       explanation: correct
         ? rule.correctExplanation
         : rule.incorrectExplanation,
       misconceptionId: correct ? null : rule.misconceptionId,
+      misconception: correct ? null : rule.incorrectExplanation,
     };
   });
 }
