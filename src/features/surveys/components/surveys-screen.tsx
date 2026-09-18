@@ -19,6 +19,7 @@ export function SurveysScreen({ role }: { role: UserRole }) {
         <LoadingState cards={2} />
       </PageContainer>
     );
+
   if (surveys.isError)
     return (
       <PageContainer className="py-8">
