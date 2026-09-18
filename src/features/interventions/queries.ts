@@ -11,6 +11,7 @@ import {
   getInterventions,
   suggestInterventions,
 } from "@/features/interventions/api";
+import { interventionMutationKeys } from "@/features/interventions/invalidation";
 import { queryKeys } from "@/lib/api/query-keys";
 import type { InterventionDecision } from "@/types/intervention";
 
@@ -29,9 +30,7 @@ export function useDecideIntervention(courseId: string) {
       decideIntervention(courseId, input.interventionId, {
         status: input.status,
       }),
-    (_data, _input, userId) => [
-      queryKeys.interventions.byCourse(userId, courseId),
-    ],
+    (_data, _input, userId) => interventionMutationKeys(userId, courseId),
   );
 }
 export function useSuggestInterventions(courseId: string) {
@@ -41,9 +40,7 @@ export function useSuggestInterventions(courseId: string) {
   >(
     "PROFESSOR",
     () => suggestInterventions(courseId),
-    (_data, _input, userId) => [
-      queryKeys.interventions.byCourse(userId, courseId),
-    ],
+    (_data, _input, userId) => interventionMutationKeys(userId, courseId),
   );
 }
 export function useGenerateProfessorGrowthPlan() {

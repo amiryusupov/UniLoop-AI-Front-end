@@ -11,6 +11,7 @@ export interface QuestionDifficulty {
   assessmentId: string;
   correctCount: number;
   responseCount: number;
+  correctPercentage: number;
   difficultyPercentage: number;
 }
 export interface StudentSupportGroup {
@@ -23,8 +24,15 @@ export interface ClassInsight {
   courseId: string;
   professorId: string;
   studentCount: number;
+  cohortMasteryPercentage: number;
+  recentImprovementPercentage: number | null;
   outcomes: CohortOutcomeInsight[];
-  misconceptions: { misconceptionId: string; studentIds: string[] }[];
+  misconceptions: {
+    misconceptionId: string;
+    outcomeId: string;
+    description: string;
+    studentIds: string[];
+  }[];
   questionDifficulty: QuestionDifficulty[];
   supportGroups: StudentSupportGroup[];
   evidenceAssessmentIds: string[];

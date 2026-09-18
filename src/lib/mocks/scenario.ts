@@ -43,6 +43,8 @@ export function applyMockScenario(
         data: {
           ...record,
           studentCount: 0,
+          cohortMasteryPercentage: 0,
+          recentImprovementPercentage: null,
           outcomes: [],
           misconceptions: [],
           questionDifficulty: [],
@@ -73,6 +75,8 @@ export function applyMockScenario(
           technicalSkills: [],
           collaborationEvidence: [],
           communicationEvidence: [],
+          gaps: [],
+          aiSummary: "",
         },
       };
     default:

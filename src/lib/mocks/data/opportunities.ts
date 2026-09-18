@@ -4,6 +4,7 @@ import type {
   Opportunity,
   ProjectEvidence,
   SkillGap,
+  SkillEvidence,
 } from "@/types/opportunity";
 
 export const targetRoleId = "role-junior-software-developer";
@@ -161,3 +162,14 @@ export const recommendationExplanation = (collaborative: boolean) =>
   collaborative
     ? "Maqsadli rol va ko‘rsatilgan ko‘nikmalar mosligi hisobga olindi. Jamoaviy loyiha yetishmayotgan hamkorlik dalilini to‘plashga yordam beradi."
     : "Maqsadli rol va ko‘rsatilgan ko‘nikmalarga mos maslahat yoki hamkorlik imkoniyati.";
+
+export function evidenceSummary(
+  name: string,
+  skills: SkillEvidence[],
+  missing: SkillGap[],
+): string {
+  const demonstrated = skills
+    .map((skill) => `${skill.label}: ${skill.percentage}%`)
+    .join("; ");
+  return `${name} bo‘yicha baholash dalillari: ${demonstrated}. ${missing.length ? "Jamoaviy loyiha hissasini tasdiqlovchi dalil hali yetishmaydi." : "Jamoaviy loyiha dalili mavjud."} Muloqot bo‘yicha alohida dalil kiritilmagan; bu salohiyat haqida xulosa emas. Yakuniy tavsiya qarorini professor dalillarni ko‘rib chiqqach beradi.`;
+}

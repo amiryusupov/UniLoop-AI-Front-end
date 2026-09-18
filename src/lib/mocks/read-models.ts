@@ -5,6 +5,7 @@ import {
   gaps,
   recommendationExplanation,
   skillLabels,
+  evidenceSummary,
 } from "@/lib/mocks/data/opportunities";
 import type {
   CareerProfile,
@@ -167,6 +168,20 @@ export function getInsight(
     courseId,
     professorId,
     studentCount: course.studentCount,
+    cohortMasteryPercentage: mean(
+      outcomes.map(
+        (item) => item.followUpPercentage ?? item.diagnosticPercentage,
+      ),
+    ),
+    recentImprovementPercentage: outcomes.some(
+      (item) => item.improvement !== null,
+    )
+      ? mean(
+          outcomes.flatMap((item) =>
+            item.improvement === null ? [] : [item.improvement],
+          ),
+        )
+      : null,
     outcomes,
     misconceptions: db.misconceptions
       .filter((item) =>
@@ -174,6 +189,8 @@ export function getInsight(
       )
       .map((item) => ({
         misconceptionId: item.id,
+        outcomeId: item.outcomeId,
+        description: item.description,
         studentIds: records
           .filter((record) =>
             record.outcomes.some((entry) =>
@@ -192,6 +209,9 @@ export function getInsight(
         assessmentId: diagnostic.id,
         correctCount,
         responseCount: answers.length,
+        correctPercentage: answers.length
+          ? Math.round((correctCount / answers.length) * 100)
+          : 0,
         difficultyPercentage: answers.length
           ? Math.round(((answers.length - correctCount) / answers.length) * 100)
           : 0,
@@ -246,6 +266,14 @@ export function getStudentEvidence(
     .map((item) => item.id);
   return {
     student,
+    targetRole: profile.targetRole,
+    readinessStage: profile.readinessStage,
+    gaps: getGaps(db, studentId),
+    aiSummary: evidenceSummary(
+      student.fullName,
+      profile.skills,
+      getGaps(db, studentId),
+    ),
     academic: db.masteries.filter(
       (item) =>
         item.studentId === studentId && visibleCourses.includes(item.courseId),
@@ -283,5 +311,6 @@ export function getReferralCandidates(
           (item) => item.overallPercentage,
         ),
       ),
+      readinessStage: getProfile(db, request.studentId).readinessStage,
     }));
 }

@@ -9,7 +9,11 @@ export function ErrorState({
   title = "errorTitle",
 }: {
   retry: () => void;
-  title?: "errorTitle" | "courseNotFound" | "assessmentNotFound";
+  title?:
+    | "errorTitle"
+    | "courseNotFound"
+    | "assessmentNotFound"
+    | "professorCourseNotFound";
 }) {
   return (
     <section

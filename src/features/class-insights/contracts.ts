@@ -4,6 +4,8 @@ export const insightSchema = z.object({
   courseId: idSchema,
   professorId: idSchema,
   studentCount: z.number().int().nonnegative(),
+  cohortMasteryPercentage: percentageSchema,
+  recentImprovementPercentage: z.number().min(-100).max(100).nullable(),
   outcomes: z.array(
     z.object({
       outcomeId: idSchema,
@@ -15,7 +17,12 @@ export const insightSchema = z.object({
     }),
   ),
   misconceptions: z.array(
-    z.object({ misconceptionId: idSchema, studentIds: z.array(idSchema) }),
+    z.object({
+      misconceptionId: idSchema,
+      outcomeId: idSchema,
+      description: z.string(),
+      studentIds: z.array(idSchema),
+    }),
   ),
   questionDifficulty: z.array(
     z.object({
@@ -23,6 +30,7 @@ export const insightSchema = z.object({
       assessmentId: idSchema,
       correctCount: z.number().int().nonnegative(),
       responseCount: z.number().int().nonnegative(),
+      correctPercentage: percentageSchema,
       difficultyPercentage: percentageSchema,
     }),
   ),

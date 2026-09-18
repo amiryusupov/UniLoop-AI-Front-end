@@ -1,5 +1,5 @@
-import { FeaturePlaceholder } from "@/components/shared/feature-placeholder";
+import { FacultyGrowthScreen } from "@/features/faculty-growth/faculty-growth-screen";
 
 export default function ProfessorGrowthPlanPage() {
-  return <FeaturePlaceholder description="professorGrowthPlanDescription" icon="growthPlan" title="navLearningPlan" />;
+  return <FacultyGrowthScreen />;
 }

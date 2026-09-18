@@ -30,14 +30,8 @@ import {
 import { useMastery } from "@/features/mastery/queries";
 import { masteryPresentation } from "@/features/mastery/presentation";
 import { useOpportunityDashboard } from "@/features/opportunities/queries";
+import { readinessPresentation } from "@/features/opportunities/presentation";
 import { t } from "@/i18n";
-
-const readinessLabels = {
-  FOUNDATION: "readinessFoundation",
-  PROJECT_READY: "readinessProjectReady",
-  INTERNSHIP_READY: "readinessInternshipReady",
-  JUNIOR_READY: "readinessJuniorReady",
-} as const;
 
 export function StudentDashboardScreen() {
   const dashboard = useStudentDashboard();
@@ -273,7 +267,7 @@ export function StudentDashboardScreen() {
           </CardHeader>
           <CardContent>
             <p className="font-medium">
-              {readiness ? t(readinessLabels[readiness]) : "—"}
+              {readiness ? t(readinessPresentation[readiness].label) : "—"}
             </p>
             <p className="mt-2 text-sm text-muted-foreground">
               {gap?.reason ?? t("emptyState")}

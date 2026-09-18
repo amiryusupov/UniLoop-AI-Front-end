@@ -9,13 +9,15 @@ import {
 import { getApiClient, type ApiClient } from "@/lib/api/client";
 import { endpoints } from "@/lib/api/endpoints";
 import type { SubmissionRequest } from "@/types/assessment";
+import type { UserRole } from "@/features/auth/types";
 export function getAssessment(
   assessmentId: string,
   signal?: AbortSignal,
   client: ApiClient = getApiClient(),
+  role: UserRole = "STUDENT",
 ) {
   return client.request(
-    { endpoint: endpoints.assessment(assessmentId), role: "STUDENT", signal },
+    { endpoint: endpoints.assessment(assessmentId), role, signal },
     assessmentResponseSchema,
     (dto) => adaptAssessment(dto.data),
   );

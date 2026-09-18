@@ -18,6 +18,18 @@ export function useAssessment(assessmentId: string) {
     enabled: context.enabled && !!assessmentId,
   });
 }
+export function useProfessorAssessment(assessmentId: string) {
+  const context = useQueryContext("PROFESSOR");
+  return useQuery({
+    queryKey: queryKeys.assessments.professorDetail(
+      context.userId,
+      assessmentId,
+    ),
+    queryFn: ({ signal }) =>
+      getAssessment(assessmentId, signal, undefined, "PROFESSOR"),
+    enabled: context.enabled && !!assessmentId,
+  });
+}
 export function useSubmitAssessment(assessmentId: string, courseId: string) {
   return useRoleMutation(
     "STUDENT",

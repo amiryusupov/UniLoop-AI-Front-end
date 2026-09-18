@@ -1,6 +1,5 @@
-import { DashboardScaffold } from "@/components/shared/dashboard-scaffold";
-import { getDemoUser } from "@/features/auth/demo-users";
+import { ProfessorDashboardScreen } from "@/features/professor-dashboard/professor-dashboard-screen";
 
 export default function ProfessorDashboardPage() {
-  return <DashboardScaffold description="professorDashboardDescription" user={getDemoUser("PROFESSOR")} />;
+  return <ProfessorDashboardScreen />;
 }

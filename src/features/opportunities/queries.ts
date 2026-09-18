@@ -14,6 +14,11 @@ import {
   updateRecommendation,
 } from "@/features/opportunities/api";
 import { queryKeys } from "@/lib/api/query-keys";
+import {
+  careerProfileMutationKeys,
+  recommendationMutationKeys,
+  endorsementMutationKeys,
+} from "@/features/opportunities/invalidation";
 import type {
   CareerProfileUpdate,
   RecommendationUpdate,
@@ -40,12 +45,8 @@ export function useUpdateCareerProfile() {
   return useRoleMutation(
     "STUDENT",
     (input: CareerProfileUpdate) => updateCareerProfile(input),
-    (_data, _input, userId) => [
-      queryKeys.opportunities.dashboard(userId),
-      queryKeys.opportunities.recommendations(userId),
-      queryKeys.referrals.candidates(getDemoUser("PROFESSOR").id),
-      queryKeys.referrals.evidence(getDemoUser("PROFESSOR").id, userId),
-    ],
+    (_data, _input, userId) =>
+      careerProfileMutationKeys(userId, getDemoUser("PROFESSOR").id),
   );
 }
 export function useUpdateRecommendation() {
@@ -53,20 +54,13 @@ export function useUpdateRecommendation() {
     "STUDENT",
     (input: RecommendationUpdate & { recommendationId: string }) =>
       updateRecommendation(input.recommendationId, { status: input.status }),
-    (_data, _input, userId) => [
-      queryKeys.opportunities.recommendations(userId),
-      queryKeys.opportunities.dashboard(userId),
-    ],
+    (_data, _input, userId) => recommendationMutationKeys(userId),
   );
 }
 export function useRequestEndorsement() {
   return useRoleMutation(
     "STUDENT",
     (input: EndorsementRequestInput) => requestEndorsement(input),
-    (data, _input, userId) => [
-      queryKeys.opportunities.dashboard(userId),
-      queryKeys.referrals.candidates(data.professorId),
-      queryKeys.referrals.evidence(data.professorId, userId),
-    ],
+    (data, _input, userId) => endorsementMutationKeys(userId, data.professorId),
   );
 }

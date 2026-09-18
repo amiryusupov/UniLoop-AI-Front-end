@@ -1,5 +1,10 @@
 import type { MasterySummary } from "@/types/mastery";
-import type { ProjectEvidence, SkillEvidence } from "@/types/opportunity";
+import type {
+  CareerReadinessStage,
+  ProjectEvidence,
+  SkillEvidence,
+  SkillGap,
+} from "@/types/opportunity";
 import type { StudentSummary } from "@/types/user";
 
 export type EndorsementStatus =
@@ -29,6 +34,10 @@ export interface EndorsementRequest {
 }
 export interface StudentEvidence {
   student: StudentSummary;
+  targetRole: string;
+  readinessStage: CareerReadinessStage;
+  gaps: SkillGap[];
+  aiSummary: string;
   academic: MasterySummary[];
   projects: ProjectEvidence[];
   technicalSkills: SkillEvidence[];
@@ -41,4 +50,5 @@ export interface ReferralCandidate {
   student: StudentSummary;
   request: EndorsementRequest;
   overallMasteryPercentage: number;
+  readinessStage: CareerReadinessStage;
 }

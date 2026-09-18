@@ -1,5 +1,5 @@
-import { FeaturePlaceholder } from "@/components/shared/feature-placeholder";
+import { OpportunityDashboardScreen } from "@/features/opportunities/components/opportunity-dashboard-screen";
 
 export default function StudentOpportunitiesPage() {
-  return <FeaturePlaceholder description="studentOpportunitiesDescription" icon="opportunities" title="navOpportunities" />;
+  return <OpportunityDashboardScreen />;
 }

@@ -13,6 +13,18 @@ export const consentSchema = z
     professorEvidenceReview: z.boolean(),
   })
   .strict();
+export const readinessStageSchema = z.enum([
+  "FOUNDATION",
+  "PROJECT_READY",
+  "INTERNSHIP_READY",
+  "JUNIOR_READY",
+]);
+export const skillGapSchema = z.object({
+  skillId: idSchema,
+  label: z.string(),
+  reason: z.string(),
+  requiredEvidence: z.string(),
+});
 export const skillSchema = z.object({
   skillId: idSchema,
   label: z.string(),
@@ -33,12 +45,7 @@ export const careerProfileSchema = z.object({
   targetRole: z.string().min(1),
   targetRoleId: idSchema,
   interests: z.array(z.string()),
-  readinessStage: z.enum([
-    "FOUNDATION",
-    "PROJECT_READY",
-    "INTERNSHIP_READY",
-    "JUNIOR_READY",
-  ]),
+  readinessStage: readinessStageSchema,
   skills: z.array(skillSchema),
   consent: consentSchema,
 });
@@ -92,14 +99,7 @@ export const recommendationSchema = z.object({
 });
 export const opportunityDashboardSchema = z.object({
   profile: careerProfileSchema,
-  gaps: z.array(
-    z.object({
-      skillId: idSchema,
-      label: z.string(),
-      reason: z.string(),
-      requiredEvidence: z.string(),
-    }),
-  ),
+  gaps: z.array(skillGapSchema),
   projects: z.array(projectSchema),
   recommendations: z.array(recommendationSchema),
   endorsementRequests: z.array(endorsementSchema),

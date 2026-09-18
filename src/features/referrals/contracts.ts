@@ -6,7 +6,12 @@ import {
   studentSchema,
 } from "@/lib/api/schemas";
 import { masterySchema } from "@/features/mastery/contracts";
-import { projectSchema, skillSchema } from "@/features/opportunities/contracts";
+import {
+  projectSchema,
+  skillSchema,
+  readinessStageSchema,
+  skillGapSchema,
+} from "@/features/opportunities/contracts";
 import { endorsementSchema } from "@/features/referrals/endorsement-contract";
 export { endorsementSchema } from "@/features/referrals/endorsement-contract";
 export const endorsementInputSchema = z
@@ -26,6 +31,10 @@ export const endorsementDecisionSchema = z
   .strict();
 export const evidenceSchema = z.object({
   student: studentSchema,
+  targetRole: z.string(),
+  readinessStage: readinessStageSchema,
+  gaps: z.array(skillGapSchema),
+  aiSummary: z.string(),
   academic: z.array(masterySchema),
   projects: z.array(projectSchema),
   technicalSkills: z.array(skillSchema),
@@ -40,6 +49,7 @@ export const candidatesResponseSchema = dtoEnvelope(
       student: studentSchema,
       request: endorsementSchema,
       overallMasteryPercentage: percentageSchema,
+      readinessStage: readinessStageSchema,
     }),
   ),
 );

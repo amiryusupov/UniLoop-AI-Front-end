@@ -1,5 +1,5 @@
-import { FeaturePlaceholder } from "@/components/shared/feature-placeholder";
+import { ProfessorCourseList } from "@/features/courses/components/professor-course-list";
 
 export default function ProfessorCoursesPage() {
-  return <FeaturePlaceholder description="professorCoursesDescription" icon="courses" title="navCourses" />;
+  return <ProfessorCourseList />;
 }

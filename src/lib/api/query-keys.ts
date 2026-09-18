@@ -31,6 +31,8 @@ export const queryKeys = {
   assessments: {
     detail: (studentId: string, assessmentId: string) =>
       ["assessments", studentId, assessmentId] as const,
+    professorDetail: (professorId: string, assessmentId: string) =>
+      ["assessments", "PROFESSOR", professorId, assessmentId] as const,
   },
   mastery: {
     byCourse: (studentId: string, courseId: string) =>

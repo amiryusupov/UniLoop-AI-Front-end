@@ -1,5 +1,5 @@
-import { FeaturePlaceholder } from "@/components/shared/feature-placeholder";
+import { ReferralsScreen } from "@/features/referrals/components/referrals-screen";
 
 export default function ProfessorReferralsPage() {
-  return <FeaturePlaceholder description="professorReferralsDescription" icon="referrals" title="navReferrals" />;
+  return <ReferralsScreen />;
 }
