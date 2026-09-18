@@ -7,6 +7,10 @@ export type ApiErrorCode =
   | "INVALID_RESPONSE"
   | "UNAUTHORIZED"
   | "FORBIDDEN"
+  | "CONFLICT"
+  | "INTERNAL_ERROR"
+  | "UNAVAILABLE"
+  | "RATE_LIMITED"
   | "MOCK_ERROR"
   | "HTTP_ERROR"
   | "ABORTED";

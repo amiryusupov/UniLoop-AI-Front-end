@@ -2,13 +2,17 @@ import { queryKeys } from "@/lib/api/query-keys";
 
 export function careerProfileMutationKeys(
   studentId: string,
-  professorId: string,
+  professorId?: string,
 ) {
   return [
     queryKeys.opportunities.dashboard(studentId),
     queryKeys.opportunities.recommendations(studentId),
-    queryKeys.referrals.candidates(professorId),
-    queryKeys.referrals.evidence(professorId, studentId),
+    ...(professorId
+      ? [
+          queryKeys.referrals.candidates(professorId),
+          queryKeys.referrals.evidence(professorId, studentId),
+        ]
+      : []),
   ];
 }
 export function recommendationMutationKeys(studentId: string) {

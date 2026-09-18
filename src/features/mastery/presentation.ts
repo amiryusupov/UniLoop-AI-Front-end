@@ -1,5 +1,10 @@
 import type { TranslationKey } from "@/i18n";
-import type { MasteryLevel } from "@/types/mastery";
+import type { MasteryLevel, MasterySummary } from "@/types/mastery";
+export function formatMasteryPercentage(mastery?: MasterySummary): string {
+  return mastery?.outcomes.some((outcome) => outcome.evidence.length)
+    ? `${mastery.overallPercentage}%`
+    : "—";
+}
 
 export const masteryPresentation: Record<
   MasteryLevel,

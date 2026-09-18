@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, type FormEvent } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { ContextState } from "@/components/feedback/context-state";
@@ -10,7 +10,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { getDemoUser } from "@/features/auth/demo-users";
 import {
   endorsementPresentation,
   formatEvidenceDate,
@@ -21,6 +20,7 @@ import type { EndorsementRequest } from "@/types/endorsement";
 import type { CareerProfile, Recommendation } from "@/types/opportunity";
 
 const requestFormSchema = z.object({
+  professorId: z.string().min(1),
   opportunityId: z.string(),
   consentToReview: z.boolean().refine(Boolean, t("reviewConsentRequired")),
 });
@@ -30,20 +30,32 @@ export function EndorsementPanel({
   profile,
   requests,
   recommendations,
+  availableProfessors,
 }: {
   profile: CareerProfile;
   requests: EndorsementRequest[];
   recommendations: Recommendation[];
+  availableProfessors: { id: string; fullName: string }[];
 }) {
   const request = useRequestEndorsement();
   const locked = useRef(false);
   const form = useForm<RequestFormValues>({
     resolver: zodResolver(requestFormSchema),
-    defaultValues: { opportunityId: "", consentToReview: false },
+    defaultValues: {
+      professorId: availableProfessors[0]?.id ?? "",
+      opportunityId: "",
+      consentToReview: false,
+    },
+  });
+  const professorId = useWatch({ control: form.control, name: "professorId" });
+  const opportunityId = useWatch({
+    control: form.control,
+    name: "opportunityId",
   });
   const duplicate = requests.some(
     (item) =>
-      item.professorId === getDemoUser("PROFESSOR").id &&
+      item.professorId === professorId &&
+      (item.opportunityId ?? "") === opportunityId &&
       item.targetRole === profile.targetRole &&
       (item.status === "REQUESTED" || item.status === "APPROVED"),
   );
@@ -57,7 +69,7 @@ export function EndorsementPanel({
       locked.current = true;
       request.mutate(
         {
-          professorId: getDemoUser("PROFESSOR").id,
+          professorId: values.professorId,
           targetRole: profile.targetRole,
           consentToReview: values.consentToReview,
           ...(values.opportunityId
@@ -65,7 +77,12 @@ export function EndorsementPanel({
             : {}),
         },
         {
-          onSuccess: () => form.reset(),
+          onSuccess: () =>
+            form.reset({
+              professorId: values.professorId,
+              opportunityId: "",
+              consentToReview: false,
+            }),
           onSettled: () => {
             locked.current = false;
           },
@@ -147,9 +164,21 @@ export function EndorsementPanel({
             <div>
               <p className="text-xs text-muted-foreground">{t("targetRole")}</p>
               <p className="mt-1 text-sm font-medium">{profile.targetRole}</p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {getDemoUser("PROFESSOR").fullName}
-              </p>
+              <Label htmlFor="endorsement-professor">
+                {t("roleProfessor")}
+              </Label>
+              <select
+                id="endorsement-professor"
+                className="mt-2 min-h-11 w-full rounded-lg border border-input bg-background px-3 text-sm"
+                disabled={request.isPending || !availableProfessors.length}
+                {...form.register("professorId")}
+              >
+                {availableProfessors.map((professor) => (
+                  <option key={professor.id} value={professor.id}>
+                    {professor.fullName}
+                  </option>
+                ))}
+              </select>
             </div>
             <div className="space-y-2">
               <Label htmlFor="endorsement-opportunity">

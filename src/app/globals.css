@@ -17,7 +17,10 @@
 }
 
 @custom-variant data-disabled {
-  &:where([data-disabled="true"], [data-disabled]:not([data-disabled="false"])) {
+  &:where(
+    [data-disabled="true"],
+    [data-disabled]:not([data-disabled="false"])
+  ) {
     @slot;
   }
 }
@@ -37,7 +40,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
+  --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);

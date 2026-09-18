@@ -13,7 +13,8 @@ export function ErrorState({
     | "errorTitle"
     | "courseNotFound"
     | "assessmentNotFound"
-    | "professorCourseNotFound";
+    | "professorCourseNotFound"
+    | "surveyErrorTitle";
 }) {
   return (
     <section

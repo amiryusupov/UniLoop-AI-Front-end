@@ -4,4 +4,5 @@ export interface ApiErrorBody {
   message?: string;
   details?: unknown;
 }
-export type MockScenario = "populated" | "empty" | "error";
+export type MockScenario =
+  "populated" | "empty" | "error" | "surveyUnavailable";

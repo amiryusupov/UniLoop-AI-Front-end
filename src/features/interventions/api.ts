@@ -57,3 +57,13 @@ export function generateProfessorGrowthPlan(
     adaptGrowthPlan,
   );
 }
+export function getProfessorGrowthPlan(
+  signal?: AbortSignal,
+  client: ApiClient = getApiClient(),
+) {
+  return client.request(
+    { endpoint: endpoints.getProfessorGrowthPlan(), role: "PROFESSOR", signal },
+    growthPlanResponseSchema,
+    adaptGrowthPlan,
+  );
+}

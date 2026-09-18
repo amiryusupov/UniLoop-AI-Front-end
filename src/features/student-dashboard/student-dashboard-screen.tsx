@@ -16,7 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { getDemoUser } from "@/features/auth/demo-users";
+import { useAuthStore } from "@/features/auth/store";
 import {
   useCourse,
   useCourses,
@@ -28,12 +28,16 @@ import {
   taskTypeLabels,
 } from "@/features/learning-plans/presentation";
 import { useMastery } from "@/features/mastery/queries";
-import { masteryPresentation } from "@/features/mastery/presentation";
+import {
+  formatMasteryPercentage,
+  masteryPresentation,
+} from "@/features/mastery/presentation";
 import { useOpportunityDashboard } from "@/features/opportunities/queries";
 import { readinessPresentation } from "@/features/opportunities/presentation";
 import { t } from "@/i18n";
 
 export function StudentDashboardScreen() {
+  const user = useAuthStore((state) => state.user);
   const dashboard = useStudentDashboard();
   const courses = useCourses("STUDENT");
   const courseId = dashboard.data?.courseIds[0] ?? courses.data?.[0]?.id ?? "";
@@ -99,7 +103,7 @@ export function StudentDashboardScreen() {
           {t("academicOverview")}
         </p>
         <h1 className="mt-1 font-heading text-3xl font-semibold tracking-tight">
-          {t("welcome")}, {getDemoUser("STUDENT").fullName}
+          {t("welcome")}, {user?.fullName}
         </h1>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
           {t("studentDashboardDescription")}
@@ -128,7 +132,7 @@ export function StudentDashboardScreen() {
                   {t("overallMastery")}
                 </p>
                 <p className="mt-1 font-heading text-2xl font-semibold">
-                  {mastery.data?.overallPercentage ?? 0}%
+                  {formatMasteryPercentage(mastery.data)}
                 </p>
               </div>
               <div>
@@ -136,11 +140,10 @@ export function StudentDashboardScreen() {
                   {t("completedAssessments")}
                 </p>
                 <p className="mt-1 font-heading text-2xl font-semibold">
-                  {mastery.data?.outcomes.some(
-                    (item) => item.followUpPercentage !== null,
-                  )
-                    ? "2"
-                    : "1"}
+                  {courseDetail.data?.assessments.reduce(
+                    (count, item) => count + (item.submissionCount ?? 0),
+                    0,
+                  ) ?? 0}
                 </p>
               </div>
               <div>
@@ -210,7 +213,7 @@ export function StudentDashboardScreen() {
           </CardHeader>
           <CardContent>
             <p className="font-heading text-4xl font-semibold">
-              {mastery.data?.overallPercentage ?? 0}%
+              {formatMasteryPercentage(mastery.data)}
             </p>
             {lowest ? (
               <>
@@ -235,7 +238,7 @@ export function StudentDashboardScreen() {
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>{t("recentAssessment")}</CardTitle>
+            <CardTitle>{t("openAssessment")}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="font-medium">
@@ -249,7 +252,7 @@ export function StudentDashboardScreen() {
             </p>
             <p className="mt-1 text-sm text-muted-foreground">{course.title}</p>
             <p className="mt-3 text-sm">
-              {t("score")}: {mastery.data?.overallPercentage ?? 0}%
+              {t("overallMastery")}: {formatMasteryPercentage(mastery.data)}
             </p>
             {recentAssessment ? (
               <Button asChild className="mt-4" size="sm" variant="outline">

@@ -111,6 +111,17 @@ export function getOpportunityDashboard(
 ): OpportunityDashboard {
   return {
     profile: getProfile(db, studentId),
+    availableProfessors: db.professors
+      .filter((professor) =>
+        db.courses.some(
+          (course) =>
+            course.professorId === professor.id &&
+            course.enrollments.some(
+              (enrollment) => enrollment.studentId === studentId,
+            ),
+        ),
+      )
+      .map(({ id, fullName }) => ({ id, fullName })),
     gaps: getGaps(db, studentId),
     projects: db.projects.filter((item) => item.studentId === studentId),
     recommendations: getRecommendations(db, studentId),
@@ -139,7 +150,9 @@ export function getInsight(
     return {
       outcomeId: outcome.id,
       diagnosticPercentage: mean(
-        entries.map((item) => item.diagnosticPercentage),
+        entries.flatMap((item) =>
+          item.diagnosticPercentage === null ? [] : [item.diagnosticPercentage],
+        ),
       ),
       followUpPercentage: completed.length
         ? mean(completed.map((item) => item.followUpPercentage ?? 0))

@@ -4,6 +4,7 @@ import { ApiError, abortedError } from "@/lib/api/errors";
 import { createHttpTransport } from "@/lib/api/http-transport";
 import { createMockTransport } from "@/lib/mocks/mock-transport";
 import type { ApiTransport, TransportRequest } from "@/lib/api/transport";
+import { useAuthStore } from "@/features/auth/store";
 
 export function createApiClient(transport: ApiTransport) {
   return {
@@ -59,7 +60,17 @@ export function getApiClient(): ApiClient {
     return createApiClient(
       env.useMocks
         ? createMockTransport({ scenario: env.mockScenario })
-        : createHttpTransport({ baseUrl: env.apiUrl }),
+        : createHttpTransport({
+            baseUrl: env.apiUrl,
+            getAccessToken: () => useAuthStore.getState().accessToken,
+            onUnauthorized: (token) => {
+              if (!token || token !== useAuthStore.getState().accessToken)
+                return;
+              useAuthStore.getState().logout();
+              if (typeof window !== "undefined")
+                window.location.replace("/login");
+            },
+          }),
     );
   }
   if (typeof window === "undefined") return createClient();

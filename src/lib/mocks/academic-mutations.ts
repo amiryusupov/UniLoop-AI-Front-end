@@ -47,9 +47,9 @@ export function academicMutation(
         if (
           question.type === "MULTIPLE_CHOICE"
             ? !answer.optionId ||
-              answer.text !== undefined ||
+              answer.answer !== undefined ||
               !question.options.some((item) => item.id === answer.optionId)
-            : !answer.text || answer.optionId !== undefined
+            : !answer.answer || answer.optionId !== undefined
         )
           throw new ApiError("VALIDATION_ERROR", 422, "apiValidationError");
       }
@@ -58,7 +58,11 @@ export function academicMutation(
         (item) =>
           item.studentId === studentId && item.courseId === assessment.courseId,
       );
-      const feedback = gradeAnswers(assessment, input.answers, db.gradingRules);
+      const feedback = gradeAnswers(
+        assessment,
+        input.answers.map(({ answer, ...item }) => ({ ...item, text: answer })),
+        db.gradingRules,
+      );
       const percentages = outcomePercentages(assessment, feedback);
       const mutation = nextMutation(db);
       const outcomeImpacts = mastery.outcomes.map((item) => {
@@ -73,7 +77,7 @@ export function academicMutation(
         item.change =
           item.followUpPercentage === null
             ? 0
-            : percentage - item.diagnosticPercentage;
+            : percentage - (item.diagnosticPercentage ?? percentage);
         item.level = masteryLevel(percentage);
         item.evidence = [
           ...item.evidence.filter(

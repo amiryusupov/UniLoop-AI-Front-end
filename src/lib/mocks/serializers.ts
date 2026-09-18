@@ -4,24 +4,25 @@ import type { UserRole } from "@/features/auth/types";
 
 export function courseSummaryDto(course: CourseSummary) {
   return {
-    course_id: course.id,
+    id: course.id,
     title: course.title,
     code: course.code,
-    professor_id: course.professorId,
-    student_count: course.studentCount,
-    outcome_count: course.outcomeCount,
+    professorId: course.professorId,
+    studentCount: course.studentCount,
+    outcomeCount: course.outcomeCount,
   };
 }
 export function courseDetailDto(
   course: CourseDetail,
   role: UserRole,
   studentId: string,
+  submissions: readonly { assessmentId: string; studentId: string }[] = [],
 ) {
   return {
     ...courseSummaryDto(course),
     description: course.description,
-    teacher: course.professor,
-    learners:
+    professor: course.professor,
+    students:
       role === "PROFESSOR"
         ? course.students
         : course.students.filter((item) => item.id === studentId),
@@ -31,17 +32,24 @@ export function courseDetailDto(
         : course.enrollments.filter((item) => item.studentId === studentId),
     outcomes: course.outcomes,
     materials: course.materials,
-    assessments: course.assessments,
-    latest_feedback: course.latestFeedback,
+    assessments: course.assessments.map((assessment) => ({
+      ...assessment,
+      submissionCount: submissions.filter(
+        (submission) =>
+          submission.assessmentId === assessment.id &&
+          (role === "PROFESSOR" || submission.studentId === studentId),
+      ).length,
+    })),
+    latestFeedback: course.latestFeedback,
   };
 }
 export function assessmentDto(assessment: Assessment) {
   return {
-    assessment_id: assessment.id,
-    course_id: assessment.courseId,
-    assessment_type: assessment.type,
+    id: assessment.id,
+    courseId: assessment.courseId,
+    type: assessment.type,
     title: assessment.title,
-    estimated_minutes: assessment.estimatedMinutes,
+    estimatedMinutes: assessment.estimatedMinutes,
     questions: assessment.questions.map((question) => ({
       id: question.id,
       outcomeId: question.outcomeId,

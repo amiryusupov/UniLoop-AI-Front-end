@@ -32,27 +32,30 @@ npm run build
 
 ### Muhit o‘zgaruvchilari
 
-| O‘zgaruvchi | Tavsif |
-| --- | --- |
-| `NEXT_PUBLIC_USE_MOCKS` | Mock rejimini yoqadi yoki o‘chiradi. |
-| `NEXT_PUBLIC_MOCK_SCENARIO` | `populated`, `empty` yoki `error`; standart qiymat `populated`. |
-| `NEXT_PUBLIC_API_URL` | Kelajakdagi NestJS backend manzili; standart qiymat `http://localhost:5001/api/v1`. |
-| `NEXT_PUBLIC_STUDENT_SURVEY_URL` | Talabalar so‘rovnomasi manzili; hozircha bo‘sh bo‘lishi mumkin. |
-| `NEXT_PUBLIC_PROFESSOR_SURVEY_URL` | Professor-o‘qituvchilar so‘rovnomasi manzili; hozircha bo‘sh bo‘lishi mumkin. |
+| O‘zgaruvchi                        | Tavsif                                                                               |
+| ---------------------------------- | ------------------------------------------------------------------------------------ |
+| `NEXT_PUBLIC_USE_MOCKS`            | Mock rejimini yoqadi yoki o‘chiradi.                                                 |
+| `NEXT_PUBLIC_MOCK_SCENARIO`        | `populated`, `empty`, `error` yoki `surveyUnavailable`; standart qiymat `populated`. |
+| `NEXT_PUBLIC_API_URL`              | NestJS backend manzili; standart qiymat `http://localhost:5001/api/v1`.              |
+| `NEXT_PUBLIC_STUDENT_SURVEY_URL`   | Talabalar so‘rovnomasi manzili; hozircha bo‘sh bo‘lishi mumkin.                      |
+| `NEXT_PUBLIC_PROFESSOR_SURVEY_URL` | Professor-o‘qituvchilar so‘rovnomasi manzili; hozircha bo‘sh bo‘lishi mumkin.        |
 
 ### Loyihalash qoidalari
 
-Kod identifikatorlari ingliz tilida, foydalanuvchiga ko‘rinadigan barcha matnlar esa markazlashtirilgan Uzbek Latin lokalizatsiyasida saqlanadi. Integratsiyalar mock-first tamoyiliga amal qiladi: UI backend ma’lumotlariga bog‘lanmasdan ishlaydi, keyingi bosqichlarda typed API qatlam orqali ulanadi.
+Kod identifikatorlari ingliz tilida, foydalanuvchiga ko‘rinadigan barcha matnlar esa markazlashtirilgan Uzbek Latin lokalizatsiyasida saqlanadi. UI bir xil typed API qatlam orqali mock yoki haqiqiy HTTP transportidan foydalanadi.
 
 ### Hozirgi holat
 
-Phase 1 dizayn, lokalizatsiya, muhit konfiguratsiyasi va providerlar asosini yaratdi. Phase 2 demo rollari, himoyalangan yo‘nalishlar, umumiy qobiq va mobil navigatsiyani qo‘shdi. Phase 3 typed domen modellari, tekshiriladigan DTOlar, HTTP/mock transportlar, izchil sintetik ma’lumotlar va Query/Mutation hooklarini qo‘shdi.
+Phase 1–7 dizayn, rollar, typed domen modellari, talabalar va professorlar akademik jarayonlari, kasbiy imkoniyatlar hamda so‘rovnomalarni yaratdi. Phase 8 haqiqiy NestJS autentifikatsiyasi, serverda baholash, o‘zlashtirish dalillari, o‘quv rejasi, kohort tahlili, kasbiy profil va rozilikka asoslangan professor tavsiyalarini PostgreSQL bilan uladi.
 
-Joriy sahifalar hali ixcham boshlang‘ich ko‘rinishlardir. To‘liq dashboardlar, haqiqiy backend autentifikatsiyasi va AI funksiyalari keyingi bosqichlarga tegishli. Yangi data hooklari hali sahifalarga ulanmagan.
+Joriy yo‘nalishlar, DTOlar, cheklovlar va tekshiruv buyruqlari: [frontend API shartnomasi](docs/frontend-api-contract.md). Mock mutatsiyalar xotirada saqlanadi; sahifani to‘liq yangilash boshlang‘ich ma’lumotlarni tiklaydi. HTTP rejimida ma’lumotlar backendda saqlanadi, sessiya esa token bilan tiklanadi.
 
-Backend bilan kelishiladigan yo‘nalish va DTOlar: [frontend API shartnomasi](docs/frontend-api-contract.md). Mock mutatsiyalar xotirada saqlanadi; sahifani to‘liq yangilash boshlang‘ich ma’lumotlarni tiklaydi. Tanlangan demo roli esa lokal xotirada saqlanadi.
+Haqiqiy backend uchun `NEXT_PUBLIC_USE_MOCKS=false` va `NEXT_PUBLIC_API_URL=http://localhost:5001/api/v1` qiymatlarini serverni boshlashdan yoki builddan oldin belgilang. `NEXT_PUBLIC_*` qiymatlari build vaqtida biriktiriladi. Backend CORS sozlamasi frontend manziliga mos bo‘lishi kerak. Backendning `docs/api-v1.md` hujjatida xavfsiz, faqat bo‘sh va disposable bazaga mo‘ljallangan seed tartibi berilgan. Seed hisoblari: `student1@uniloop.local` va `professor@uniloop.local`; faqat mahalliy demo paroli: `password123`.
+
+Avtomatik materialdan outcome/assessment yaratish hozircha aniq unavailable holatini qaytaradi. Gemini va S3 ixtiyoriy; real provider sozlanmaganida AI deterministik fallback qaytaradi. Soxta AI natijalari, baholar yoki loyiha dalillari qo‘shilmaydi.
 
 Ma’lum sandbox Turbopack worker ruxsati muammosi yuz bersa, `npm run build -- --webpack` orqali ishlab chiqarish buildini tekshiring.
 
-Keyingi rejalashtirilgan bosqich: talabalar uchun akademik ish jarayonlari.
-# UniLoop-AI-Front-end
+Haqiqiy backend smoke testi: `SMOKE_DISPOSABLE=true node scripts/validate-backend.mjs`. Bu test faqat disposable mahalliy backend ma’lumotlarini o‘zgartiradi.
+
+Taqdimot, xavfsiz migration/seed qoidalari, real va mock rejimlari hamda nosozliklarni bartaraf etish: [Phase 9 demo runbook](docs/demo-runbook.md) va [yakuniy QA dalillari](docs/phase9-qa.md).

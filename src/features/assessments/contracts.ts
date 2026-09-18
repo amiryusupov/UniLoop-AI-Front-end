@@ -6,21 +6,25 @@ import {
   percentageSchema,
   timestampSchema,
 } from "@/lib/api/schemas";
-export const questionSchema = z.object({
-  id: idSchema,
-  outcomeId: idSchema,
-  type: z.enum(["MULTIPLE_CHOICE", "SHORT_ANSWER"]),
-  prompt: z.string(),
-  options: z.array(z.object({ id: idSchema, text: z.string() })),
-});
-export const assessmentDtoSchema = z.object({
-  assessment_id: idSchema,
-  course_id: idSchema,
-  assessment_type: z.enum(["DIAGNOSTIC", "FOLLOW_UP"]),
-  title: z.string(),
-  questions: z.array(questionSchema),
-  estimated_minutes: z.number().int().positive(),
-});
+export const questionSchema = z
+  .object({
+    id: idSchema,
+    outcomeId: idSchema,
+    type: z.enum(["MULTIPLE_CHOICE", "SHORT_ANSWER"]),
+    prompt: z.string(),
+    options: z.array(z.object({ id: idSchema, text: z.string() }).strict()),
+  })
+  .strict();
+export const assessmentDtoSchema = z
+  .object({
+    id: idSchema,
+    courseId: idSchema,
+    type: z.enum(["DIAGNOSTIC", "FOLLOW_UP"]),
+    title: z.string(),
+    questions: z.array(questionSchema),
+    estimatedMinutes: z.number().int().positive(),
+  })
+  .strict();
 export const submissionInputSchema = z
   .object({
     answers: z
@@ -29,7 +33,7 @@ export const submissionInputSchema = z
           .object({
             questionId: idSchema,
             optionId: idSchema.optional(),
-            text: z.string().trim().max(10_000).optional(),
+            answer: z.string().trim().max(10_000).optional(),
           })
           .strict(),
       )

@@ -9,6 +9,8 @@ function endpoint<N extends string>(
   return { name, method, path, params };
 }
 export const endpoints = {
+  login: () => endpoint("login", "POST", "/auth/login"),
+  identity: () => endpoint("identity", "GET", "/auth/me"),
   studentDashboard: () =>
     endpoint("studentDashboard", "GET", "/students/me/dashboard"),
   professorDashboard: () =>
@@ -17,40 +19,53 @@ export const endpoints = {
     endpoint("studentCourses", "GET", "/students/me/courses"),
   professorCourses: () =>
     endpoint("professorCourses", "GET", "/professors/me/courses"),
-  courseDetail: (courseId: string) =>
-    endpoint("courseDetail", "GET", `/courses/${segment(courseId)}`, {
-      courseId,
-    }),
+  courseDetail: (courseId: string, role: "STUDENT" | "PROFESSOR" = "STUDENT") =>
+    endpoint(
+      "courseDetail",
+      "GET",
+      `/${role === "STUDENT" ? "students" : "professors"}/me/courses/${segment(courseId)}`,
+      {
+        courseId,
+      },
+    ),
   courseMaterials: (courseId: string) =>
     endpoint(
       "courseMaterials",
       "POST",
-      `/courses/${segment(courseId)}/materials`,
+      `/professors/me/courses/${segment(courseId)}/materials`,
       { courseId },
     ),
   extractOutcomes: (courseId: string) =>
     endpoint(
       "extractOutcomes",
       "POST",
-      `/courses/${segment(courseId)}/outcomes/extract`,
+      `/professors/me/courses/${segment(courseId)}/outcomes/extract`,
       { courseId },
     ),
   generateAssessment: (courseId: string) =>
     endpoint(
       "generateAssessment",
       "POST",
-      `/courses/${segment(courseId)}/assessments/generate`,
+      `/professors/me/courses/${segment(courseId)}/assessments/generate`,
       { courseId },
     ),
-  assessment: (assessmentId: string) =>
-    endpoint("assessment", "GET", `/assessments/${segment(assessmentId)}`, {
-      assessmentId,
-    }),
+  assessment: (
+    assessmentId: string,
+    role: "STUDENT" | "PROFESSOR" = "STUDENT",
+  ) =>
+    endpoint(
+      "assessment",
+      "GET",
+      `/${role === "STUDENT" ? "students" : "professors"}/me/assessments/${segment(assessmentId)}`,
+      {
+        assessmentId,
+      },
+    ),
   submitAssessment: (assessmentId: string) =>
     endpoint(
       "submitAssessment",
       "POST",
-      `/assessments/${segment(assessmentId)}/submissions`,
+      `/students/me/assessments/${segment(assessmentId)}/submissions`,
       { assessmentId },
     ),
   mastery: (courseId: string) =>
@@ -101,6 +116,8 @@ export const endpoints = {
     ),
   professorGrowthPlan: () =>
     endpoint("professorGrowthPlan", "POST", "/professors/me/growth-plans"),
+  getProfessorGrowthPlan: () =>
+    endpoint("professorGrowthPlan", "GET", "/professors/me/growth-plans"),
   opportunityDashboard: () =>
     endpoint(
       "opportunityDashboard",

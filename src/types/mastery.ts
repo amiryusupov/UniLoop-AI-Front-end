@@ -18,7 +18,7 @@ export interface OutcomeMastery {
   outcomeId: string;
   percentage: number;
   level: MasteryLevel;
-  diagnosticPercentage: number;
+  diagnosticPercentage: number | null;
   followUpPercentage: number | null;
   change: number;
   evidence: EvidenceSource[];

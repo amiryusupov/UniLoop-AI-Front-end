@@ -1,4 +1,26 @@
 export const uz = {
+  apiRateLimited:
+    "Juda ko‘p urinish bo‘ldi. Bir daqiqadan so‘ng qayta urinib ko‘ring.",
+  pairedImprovementNote:
+    "O‘sish faqat diagnostika va qayta diagnostika dalili bor talabalar uchun hisoblanadi; ustunlar barcha mavjud dalillarni ko‘rsatadi.",
+  masteryNotAssessed: "Hali baholanmagan",
+  apiConflict: "Bu maʼlumot allaqachon mavjud yoki holati o‘zgargan.",
+  apiUnavailable:
+    "Bu amal hozir mavjud emas. Mavjud kurs dalillaridan foydalaning.",
+  authoringUnavailable:
+    "Haqiqiy API rejimida avtomatik o‘quv natijalarini ajratish va savol yaratish mavjud emas. Kursga sozlangan baholashlardan foydalaning.",
+  careerRoleFrontend: "Frontend dasturchi",
+  careerRoleBackend: "Backend dasturchi",
+  careerRoleData: "Maʼlumotlar tahlilchisi",
+  careerRoleFullstack: "Fullstack dasturchi",
+  careerRoleDevops: "DevOps muhandisi",
+  loginAccountTitle: "Hisobingizga kiring",
+  loginEmail: "Elektron pochta",
+  loginPassword: "Parol",
+  loginEmailInvalid: "To‘g‘ri elektron pochta manzilini kiriting.",
+  loginPasswordInvalid: "Parol 8–200 belgidan iborat bo‘lishi kerak.",
+  loginPending: "Kirilmoqda…",
+  loginSubmit: "Kirish",
   appName: "UniLoop AI",
   appDescription:
     "Talabaning o‘qishi, dalillari va kasbiy rivojlanishini uzluksiz qo‘llab-quvvatlaydigan sun’iy intellekt tizimi.",
@@ -413,4 +435,22 @@ export const uz = {
   decisionAlreadyRecorded: "Professor qarori qayd etilgan.",
   decisionAuthorityNote:
     "AI xulosasi dalillarni tushuntirishga yordam beradi. Quyidagi qarorni professor mustaqil qabul qiladi.",
+  surveysIntro:
+    "Javoblaringiz o‘qish tajribasi, talabalarni qo‘llab-quvvatlash, tarmoq va kasbiy tayyorgarlikni yaxshilashga yordam beradi.",
+  surveyPrivacyNote:
+    "So‘rovnoma UniLoop AI tashqarisidagi Google Form sahifasida ochiladi. Ma’lumot yuborishdan oldin formadagi ma’lumot va maxfiylik izohlarini ko‘rib chiqing.",
+  surveyAudienceStudent: "Talabalar uchun",
+  surveyAudienceProfessor: "Professor-o‘qituvchilar uchun",
+  surveyEstimatedTime: "Taxminiy vaqt",
+  surveyMinutes: "daqiqa",
+  surveyStatusActive: "Faol",
+  surveyStatusInactive: "Hozircha faol emas",
+  startSurvey: "So‘rovnomani boshlash",
+  openExternalForm: "Tashqi Google Form yangi oynada ochiladi",
+  surveyUnavailable: "So‘rovnoma havolasi hozircha mavjud emas.",
+  surveyInactiveDescription:
+    "Bu so‘rovnoma hozircha javoblar uchun ochilmagan.",
+  surveyNoAvailable: "Siz uchun hozircha so‘rovnoma mavjud emas.",
+  surveyErrorTitle: "So‘rovnomalarni yuklab bo‘lmadi",
+  surveyAudienceLabel: "Maqsadli auditoriya",
 } as const;

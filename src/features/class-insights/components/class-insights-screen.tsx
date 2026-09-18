@@ -70,7 +70,7 @@ export function ClassInsightsScreen({ courseId }: { courseId: string }) {
   const chartData = insight.data.outcomes.map((item) => ({
     name: outcomeNames.get(item.outcomeId) ?? t("learningOutcomes"),
     diagnostic: item.diagnosticPercentage,
-    followUp: item.followUpPercentage ?? 0,
+    followUp: item.followUpPercentage,
   }));
   return (
     <PageContainer className="py-8 sm:py-10">
@@ -104,6 +104,9 @@ export function ClassInsightsScreen({ courseId }: { courseId: string }) {
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
           {t("accessibilityCohortChart")}
+        </p>
+        <p className="mt-2 text-xs text-muted-foreground">
+          {t("pairedImprovementNote")}
         </p>
         <div className="mt-5 h-80 w-full">
           <ResponsiveContainer height="100%" width="100%">
@@ -148,7 +151,9 @@ export function ClassInsightsScreen({ courseId }: { courseId: string }) {
                     {t("diagnosticScore")}
                   </p>
                   <p className="mt-1 font-semibold">
-                    {item.diagnosticPercentage}%
+                    {item.diagnosticPercentage === null
+                      ? "—"
+                      : `${item.diagnosticPercentage}%`}
                   </p>
                 </div>
                 <div>
@@ -156,7 +161,7 @@ export function ClassInsightsScreen({ courseId }: { courseId: string }) {
                   <p className="mt-1 font-semibold">
                     {item.followUpPercentage === null
                       ? "—"
-                      : `${item.followUpPercentage}% (+${item.improvement ?? 0}%)`}
+                      : `${item.followUpPercentage}%${item.improvement === null ? "" : ` (${item.improvement > 0 ? "+" : ""}${item.improvement}%)`}`}
                   </p>
                 </div>
                 <p className="col-span-2 text-muted-foreground">

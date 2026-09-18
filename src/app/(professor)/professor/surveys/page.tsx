@@ -1,5 +1,5 @@
-import { FeaturePlaceholder } from "@/components/shared/feature-placeholder";
+import { SurveysScreen } from "@/features/surveys/components/surveys-screen";
 
 export default function ProfessorSurveysPage() {
-  return <FeaturePlaceholder description="professorSurveysDescription" icon="surveys" title="navSurveys" />;
+  return <SurveysScreen role="PROFESSOR" />;
 }

@@ -12,7 +12,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { useCourse } from "@/features/courses/queries";
 import { useMastery } from "@/features/mastery/queries";
-import { masteryPresentation } from "@/features/mastery/presentation";
+import {
+  formatMasteryPercentage,
+  masteryPresentation,
+} from "@/features/mastery/presentation";
 import { t } from "@/i18n";
 
 const evidenceTypeLabels = {
@@ -95,7 +98,7 @@ export function MasteryOverview({ courseId }: { courseId: string }) {
             </p>
           </div>
           <p className="font-heading text-3xl font-semibold">
-            {mastery.data.overallPercentage}%
+            {formatMasteryPercentage(mastery.data)}
           </p>
         </div>
         <div className="space-y-5">
@@ -104,7 +107,7 @@ export function MasteryOverview({ courseId }: { courseId: string }) {
               <div className="mb-2 flex flex-wrap items-center justify-between gap-2 text-sm">
                 <span className="font-medium">{outcome?.title}</span>
                 <span>
-                  {entry.percentage}% ·{" "}
+                  {entry.evidence.length ? `${entry.percentage}%` : "—"} ·{" "}
                   {entry.followUpPercentage === null
                     ? t("diagnosticScore")
                     : `${t("change")} ${percentageChange(entry.change)}`}
@@ -117,7 +120,7 @@ export function MasteryOverview({ courseId }: { courseId: string }) {
                 />
                 <span className="text-xs text-muted-foreground">
                   {entry.followUpPercentage === null
-                    ? `${t("diagnosticScore")}: ${entry.diagnosticPercentage}%`
+                    ? `${t("diagnosticScore")}: ${entry.diagnosticPercentage === null ? "—" : `${entry.diagnosticPercentage}%`}`
                     : `${t("followUpScore")}: ${entry.followUpPercentage}%`}
                 </span>
               </div>
@@ -140,7 +143,11 @@ export function MasteryOverview({ courseId }: { courseId: string }) {
                   className={masteryPresentation[entry.level].className}
                   variant="outline"
                 >
-                  {t(masteryPresentation[entry.level].label)}
+                  {t(
+                    entry.evidence.length
+                      ? masteryPresentation[entry.level].label
+                      : "masteryNotAssessed",
+                  )}
                 </Badge>
               </div>
             </CardHeader>
@@ -158,7 +165,9 @@ export function MasteryOverview({ courseId }: { courseId: string }) {
                     {t("diagnosticScore")}
                   </p>
                   <p className="mt-1 font-medium">
-                    {entry.diagnosticPercentage}%
+                    {entry.diagnosticPercentage === null
+                      ? "—"
+                      : `${entry.diagnosticPercentage}%`}
                   </p>
                 </div>
                 <div>

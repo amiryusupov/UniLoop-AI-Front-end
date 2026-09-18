@@ -13,9 +13,10 @@ import { Label } from "@/components/ui/label";
 import { useUpdateCareerProfile } from "@/features/opportunities/queries";
 import { t } from "@/i18n";
 import type { CareerProfile } from "@/types/opportunity";
+import { targetRoles } from "@/features/opportunities/target-roles";
 
 const profileFormSchema = z.object({
-  targetRole: z
+  targetRoleId: z
     .string()
     .trim()
     .min(1, t("roleValidation"))
@@ -39,7 +40,7 @@ export function CareerProfileCard({ profile }: { profile: CareerProfile }) {
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
     values: {
-      targetRole: profile.targetRole,
+      targetRoleId: profile.targetRoleId,
       interestsText: profile.interests.join(", "),
     },
   });
@@ -49,8 +50,15 @@ export function CareerProfileCard({ profile }: { profile: CareerProfile }) {
       locked.current = true;
       update.mutate(
         {
-          targetRole: values.targetRole,
-          targetRoleId: profile.targetRoleId,
+          targetRole: targetRoles.find(
+            (role) => role.id === values.targetRoleId,
+          )
+            ? t(
+                targetRoles.find((role) => role.id === values.targetRoleId)!
+                  .label,
+              )
+            : profile.targetRole,
+          targetRoleId: values.targetRoleId,
           interests: values.interestsText
             .split(",")
             .map((item) => item.trim())
@@ -83,16 +91,29 @@ export function CareerProfileCard({ profile }: { profile: CareerProfile }) {
             </p>
             <div className="space-y-2">
               <Label htmlFor="career-target-role">{t("targetRole")}</Label>
-              <Input
+              <select
                 id="career-target-role"
                 disabled={update.isPending}
-                className="h-11"
-                aria-invalid={Boolean(form.formState.errors.targetRole)}
+                className="min-h-11 w-full rounded-lg border border-input bg-background px-3 text-sm"
+                aria-invalid={Boolean(form.formState.errors.targetRoleId)}
                 aria-describedby="career-role-error"
-                {...form.register("targetRole")}
-              />
+                {...form.register("targetRoleId")}
+              >
+                {!targetRoles.some(
+                  (role) => role.id === profile.targetRoleId,
+                ) ? (
+                  <option value={profile.targetRoleId}>
+                    {profile.targetRole}
+                  </option>
+                ) : null}
+                {targetRoles.map((role) => (
+                  <option key={role.id} value={role.id}>
+                    {t(role.label)}
+                  </option>
+                ))}
+              </select>
               <p id="career-role-error" className="text-sm text-destructive">
-                {form.formState.errors.targetRole?.message}
+                {form.formState.errors.targetRoleId?.message}
               </p>
             </div>
             <div className="space-y-2">

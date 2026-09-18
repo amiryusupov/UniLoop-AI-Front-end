@@ -9,6 +9,7 @@ import {
   decideIntervention,
   generateProfessorGrowthPlan,
   getInterventions,
+  getProfessorGrowthPlan,
   suggestInterventions,
 } from "@/features/interventions/api";
 import { interventionMutationKeys } from "@/features/interventions/invalidation";
@@ -52,4 +53,12 @@ export function useGenerateProfessorGrowthPlan() {
     () => generateProfessorGrowthPlan(),
     (_data, _input, userId) => [queryKeys.professors.growthPlan(userId)],
   );
+}
+export function useProfessorGrowthPlan() {
+  const context = useQueryContext("PROFESSOR");
+  return useQuery({
+    queryKey: queryKeys.professors.growthPlan(context.userId),
+    queryFn: ({ signal }) => getProfessorGrowthPlan(signal),
+    enabled: context.enabled,
+  });
 }

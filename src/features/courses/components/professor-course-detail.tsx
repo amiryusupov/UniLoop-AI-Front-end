@@ -53,7 +53,7 @@ export function ProfessorCourseDetail({ courseId }: { courseId: string }) {
   );
   const cohort = insight.data.cohortMasteryPercentage;
   const attention = [...insight.data.outcomes].sort(
-    (a, b) => a.diagnosticPercentage - b.diagnosticPercentage,
+    (a, b) => (a.diagnosticPercentage ?? 101) - (b.diagnosticPercentage ?? 101),
   )[0];
   const attentionTitle = course.data.outcomes.find(
     (item) => item.id === attention?.outcomeId,

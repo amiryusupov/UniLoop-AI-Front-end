@@ -78,6 +78,7 @@ export interface OpportunityDashboard {
   projects: ProjectEvidence[];
   recommendations: Recommendation[];
   endorsementRequests: EndorsementRequest[];
+  availableProfessors: { id: string; fullName: string }[];
 }
 export interface RecommendationUpdate {
   status: RecommendationStatus;

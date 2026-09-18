@@ -111,7 +111,7 @@ export function handleMockRequest(
           : course.professorId !== professorId
       )
         throw new ApiError("FORBIDDEN", 403, "apiForbidden");
-      return { data: courseDetailDto(course, role, studentId) };
+      return { data: courseDetailDto(course, role, studentId, db.submissions) };
     }
     case "assessment":
       return {
@@ -179,6 +179,18 @@ export function handleMockRequest(
     }
     case "opportunityDashboard":
       return { data: getOpportunityDashboard(db, studentId) };
+    case "professorGrowthPlan":
+      return {
+        data: {
+          id: "growth-plan-professor-demo",
+          professorId,
+          actions: db.interventions.map((item) => ({
+            title: item.suggestedAction,
+            reason: item.reason,
+            courseId: item.courseId,
+          })),
+        },
+      };
     case "recommendations":
       return { data: getRecommendations(db, studentId) };
     case "referralCandidates":

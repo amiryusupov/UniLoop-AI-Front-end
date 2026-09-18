@@ -1,197 +1,91 @@
-# Frontend API contract — Phase 3
+# UniLoop frontend API contract — Phase 8
 
-These are frontend integration proposals, not finalized NestJS facts. Planned paths come from the product brief; all request/response shapes below still require backend confirmation.
+## Architecture
 
-## Boundaries and configuration
+UI → feature hook → feature API → central client → selected HTTP/mock transport → Zod validation → DTO adapter → domain model. No component fetches, UI-built endpoints, or production fixture/database imports. Endpoints and query keys are centralized under src/lib/api. Source feature contracts and the sibling backend docs/api-v1.md define the canonical payloads.
 
-Components consume feature hooks. Hooks call `src/features/*/api.ts` services. Services use `endpoints.ts`, a single transport selected in `getApiClient()`, Zod contracts, and feature adapters. UI must never import fixtures, build endpoint paths, call `fetch`, or unpack DTOs.
+Defaults: frontend http://localhost:3000; backend http://localhost:5001; NEXT_PUBLIC_API_URL=http://localhost:5001/api/v1. Set NEXT_PUBLIC_USE_MOCKS=false for real authentication/data, true for the offline role-selection demo. NEXT_PUBLIC variables are frozen at Next build time; rebuild to switch production modes. Invalid environment configuration fails explicitly, never silently switches real mode to mocks. Actual .env credentials are not copied into documentation.
 
-- `NEXT_PUBLIC_USE_MOCKS=true`: in-process mock transport, no server/API calls.
-- `NEXT_PUBLIC_USE_MOCKS=false`: HTTP transport; base defaults to `http://localhost:5001/api/v1`.
-- `NEXT_PUBLIC_MOCK_SCENARIO=populated|empty|error`, default `populated`.
-- No data hooks are mounted by the Phase 2 scaffold screens yet.
-- UserRole remains defined once in `features/auth/types.ts`.
-- `getApiClient()` retains one mock database/client in a browser session. Server callers get isolated clients and should inject a client into a sequence of services when they need shared mock state.
+Every response is {data:DTO}, including lists. No double wrapping. Public DTOs are camelCase and dates are ISO-8601. HTTP errors are {error:{code,message,details}}. Frontend chooses centralized Uzbek text by stable code/status and does not display untrusted server messages. CONFLICT, INTERNAL_ERROR and UNAVAILABLE supplement existing localized errors.
 
-## Authentication assumption
+## Authentication and IDs
 
-Phase 2 uses a persisted demo role; it is not server authentication. Mock requests take role metadata and resolve exactly the central demo users. HTTP ignores that metadata and expects future bearer authentication to resolve `me`.
+POST /auth/login receives {email,password}; returns {accessToken,user} inside data. GET /auth/me returns {id,profileId,fullName,role,university,faculty,avatarLabel}. id is User ID; profileId is StudentProfile/ProfessorProfile ID. Summary id, submission studentId, course professorId, dashboard legacy userId and resource cache identities refer to profile IDs.
 
-`createHttpTransport({ baseUrl, getAccessToken, onUnauthorized })` exposes token injection and replaceable 401 behavior without importing Zustand. Neither token injection nor token refresh is wired in Phase 3. Phase 8 must replace demo query identity and session state with the backend-authenticated user. Production authorization, grading, consent enforcement, and professor ownership checks must run on the backend.
+HTTP mode persists only the access token under uniloop-http-session. Stored data is type-checked and cannot inject a saved role/user. Refresh validates /auth/me before protected queries become enabled. Login and role routing use the backend identity. Session changes clear TanStack Query cache; logout clears role, identity and token. Central transport adds Bearer only when present. A 401 clears the matching session and navigates to /login; a stale request cannot clear a newly signed-in token. Login failure without a token stays on the form with localized feedback.
 
-## Planned endpoints implemented by services and mock handlers
+Mock mode retains uniloop-demo-session role choice and demo identities. HTTP mode never derives a backend profile ID from demo users. Client guards are navigation UX only; Nest is the authorization boundary.
 
-All paths below are relative to the API base. Responses have a provisional `{ data: ... }` envelope. Lists are currently unpaginated.
+Eight-hour bearer access tokens, no refresh/revocation flow. localStorage is a deliberate hackathon compromise: XSS can steal the token. Production should use an HttpOnly/BFF session strategy, rate limits and explicit account provisioning. Public backend registration cannot create ADMIN, but professor self-registration remains a development MVP policy, not institutional authorization.
 
-| Method | Path | Request | Response data |
-| --- | --- | --- | --- |
-| GET | /courses/:id | — | Course detail DTO |
-| POST | /courses/:id/materials | `{ title, content }` | CourseMaterial |
-| POST | /courses/:id/outcomes/extract | — | LearningOutcome[] |
-| POST | /courses/:id/assessments/generate | `{ type }` | Safe assessment DTO |
-| POST | /assessments/:id/submissions | `{ answers }` | SubmissionResult |
-| GET | /students/me/mastery/:courseId | — | MasterySummary |
-| POST | /students/me/learning-plans/:courseId | — | LearningPlan |
-| GET | /professors/me/courses/:courseId/insights | — | ClassInsight |
-| POST | /professors/me/courses/:courseId/interventions | — | TeachingIntervention[] |
-| POST | /professors/me/growth-plans | — | ProfessorGrowthPlan |
-| GET | /students/me/opportunity-dashboard | — | OpportunityDashboard |
-| PATCH | /students/me/career-profile | CareerProfileUpdate | CareerProfile |
-| GET | /students/me/recommendations | — | Recommendation[] |
-| PATCH | /students/me/recommendations/:recommendationId | `{ status }` | Recommendation |
-| POST | /students/me/endorsement-requests | EndorsementRequestInput | EndorsementRequest |
-| GET | /professors/me/referral-candidates | — | ReferralCandidate[] |
-| GET | /professors/me/students/:studentId/evidence | — | StudentEvidence |
-| POST | /professors/me/endorsements | EndorsementDecision | EndorsementRequest |
-| GET | /surveys?audience=STUDENT\|PROFESSOR | — | Survey[] |
+Unknown backend university/faculty names are empty and organization IDs null. StudentProfile.universityId is an enrollment identifier, not an organization foreign key. No fictitious organization is substituted.
 
-## Provisional frontend-required endpoints
+## Canonical endpoints
 
-The backend developer must confirm these additional paths.
+Paths below are relative to /api/v1. All feature routes require backend identity and role; course/assessment routes additionally enforce enrollment or professor ownership.
 
-| Method | Path | Response data |
-| --- | --- | --- |
-| GET | /students/me/dashboard | AcademicDashboard |
-| GET | /students/me/courses | Course summary DTO[] |
-| GET | /professors/me/dashboard | AcademicDashboard |
-| GET | /professors/me/courses | Course summary DTO[] |
-| GET | /assessments/:id | Safe assessment DTO |
-| GET | /students/me/learning-plans/:courseId | LearningPlan |
-| GET | /professors/me/courses/:courseId/interventions | TeachingIntervention[] |
-| PATCH | /professors/me/courses/:courseId/interventions/:interventionId | TeachingIntervention; request `{ status: APPROVED | REJECTED }` |
+| Feature                            | Endpoint                                                                               |
+| ---------------------------------- | -------------------------------------------------------------------------------------- |
+| Student dashboard/courses/detail   | GET /students/me/dashboard; /students/me/courses; /students/me/courses/:courseId       |
+| Professor dashboard/courses/detail | GET /professors/me/dashboard; /professors/me/courses; /professors/me/courses/:courseId |
+| Safe student/professor assessment  | GET /students/me/assessments/:id; /professors/me/assessments/:id                       |
+| Answers-only submission            | POST /students/me/assessments/:id/submissions                                          |
+| Mastery/current plan               | GET /students/me/mastery/:courseId; /students/me/learning-plans/:courseId              |
+| Generate learning plan             | POST /students/me/learning-plans/:courseId                                             |
+| Insights/interventions             | GET /professors/me/courses/:courseId/insights; /interventions                          |
+| Suggest intervention               | POST /professors/me/courses/:courseId/interventions                                    |
+| Decide intervention                | PATCH /professors/me/courses/:courseId/interventions/:interventionId                   |
+| Persisted/generate growth plan     | GET/POST /professors/me/growth-plans                                                   |
+| Text material upload               | POST /professors/me/courses/:courseId/materials                                        |
+| Opportunity dashboard/profile      | GET /students/me/opportunity-dashboard; PATCH /students/me/career-profile              |
+| Recommendations/status             | GET /students/me/recommendations; PATCH /students/me/recommendations/:id               |
+| Request endorsement                | POST /students/me/endorsement-requests                                                 |
+| Referral candidates/evidence       | GET /professors/me/referral-candidates; /professors/me/students/:studentId/evidence    |
+| Professor endorsement decision     | POST /professors/me/endorsements                                                       |
+| Survey configuration               | GET /surveys?audience=STUDENT or PROFESSOR                                             |
 
-The last PATCH separates professor decisions from suggestion generation. Confirm whether NestJS instead uses the planned POST with a decision discriminator.
+Automated outcome extraction and assessment generation call owner-scoped professor endpoints and return controlled UNAVAILABLE (503) in HTTP mode. The assessment screen explicitly states this limitation. Mock authoring handlers remain available for offline demonstrations. No fake generated questions or fallback demo data are supplied in real mode.
 
-## Domain models and DTO assumptions
+## Domain DTOs and evidence
 
-Stable frontend interfaces are split across `src/types/` by domain. Runtime contracts live in `src/features/*/contracts.ts`; they validate transport payloads as unknown. Shared scalar/user/evidence schemas live in `lib/api/schemas.ts`. Adapters are the only layer that translates DTO field names.
+Course summary: {id,title,code,professorId,studentCount,outcomeCount}. Detail adds description, professor, students, enrollments, outcomes, materials, assessments and latestFeedback. Student detail contains only their own student/enrollment entry. Assessment summaries include actual submissionCount (0/1 for the current student; real cohort total for professor), not guessed participation.
 
-Course summary DTO:
-```ts
-{
-  course_id: string;
-  title: string;
-  code: string;
-  professor_id: string;
-  student_count: number;
-  outcome_count: number;
-}
-```
+Assessment: {id,courseId,type,title,estimatedMinutes,questions:[{id,outcomeId,type,prompt,options:[{id,text}]}]}. Student delivery never requires or contains correctAnswer/correct flags. The domain form uses text for short-answer content; the feature API converts it to canonical wire answer. Wire body: {answers:[{questionId,optionId}|{questionId,answer}]}. Client score/identity fields are forbidden.
 
-Course detail extends summary with `description`, `teacher`, `learners`, `enrollments`, `outcomes`, `materials`, `assessments`, and `latest_feedback`. The adapter maps these to `id`, `professor`, `students`, `latestFeedback`, etc. Student DTOs contain only their own learner/enrollment record; professor DTOs contain the owned cohort.
+Submission result provides own submission ID/profile ID, submittedAt, scorePercentage, per-question feedback, outcomeImpacts, deterministic explanation and nextRecommendedAction. Correct-answer feedback is returned only after submission. One current submission is atomically replaced on resubmission; this is an open-book development/practice flow, not a secure examination attempt policy.
 
-Assessment DTO:
-```ts
-{
-  assessment_id: string;
-  course_id: string;
-  assessment_type: "DIAGNOSTIC" | "FOLLOW_UP";
-  title: string;
-  estimated_minutes: number;
-  questions: {
-    id: string;
-    outcomeId: string;
-    type: "MULTIPLE_CHOICE" | "SHORT_ANSWER";
-    prompt: string;
-    options: { id: string; text: string }[];
-  }[];
-}
-```
+Mastery: per-outcome percentage, public level, diagnosticPercentage:number|null, followUpPercentage:number|null, change, evidence[], misconception IDs/descriptions and next action. Overall averages assessed outcomes. Unassessed numeric 0 is a compatibility placeholder with empty evidence; UI shows absent evidence as unassessed/—. Diagnostic/follow-up comparison requires paired real evidence and a follow-up newer than the latest diagnostic. Cohort improvement is null without valid pairs; charts do not replace missing follow-up with 0. Unsupported misconception data is explicitly empty.
 
-There are no correct-answer fields before submission. Grading fixtures are internal to the synthetic handler. The response validator strips unrecognized grading fields defensively. Client-bundled demo fixtures are inspectable; only backend grading will provide production secrecy.
+Learning plan: persisted ID, profile/course IDs, createdAt, ordered typed tasks with status, reason, actionTarget and planning estimate. Backend generated tasks map to PRACTICE and NOT_STARTED/COMPLETED. Historic plans are preserved; current plan reloads after grading. Professor growth plan loads persisted goals on page refresh and mutation invalidates its exact key.
 
-Other response DTOs provisionally use camelCase domain fields inside `data`, with explicit feature adapters even when current adaptation is identity:
+Public enum vocabulary is stable. Backend centrally maps PERSON→PEER; VIEWED→SAVED; INTERESTED→ACCEPTED; LEARNING_FOUNDATIONS→FOUNDATION; PENDING→REQUESTED; ENDORSED→APPROVED; PLANNED→SUGGESTED; ACTIVE/COMPLETED→APPROVED; REJECTED→REJECTED. Mastery maps MASTERED→MASTERED, DEVELOPING→DEVELOPING, NEEDS_ATTENTION→NEEDS_SUPPORT, NOT_ASSESSED→NEEDS_SUPPORT with absent evidence. PROFICIENT remains accepted frontend presentation vocabulary, not a new backend evidence level. New migration preserves distinctions for MENTOR, INTERNSHIP, DECLINED and rejection.
 
-- AcademicDashboard: user ID, course IDs, next action, optional feedback.
-- SubmissionResult: assessment/student IDs, ISO timestamp, correctness score, per-question feedback with outcome and misconception IDs, per-outcome before/after/change, explanation, next action.
-- MasterySummary: student/course IDs, overall percentage, per-outcome level/percentage, diagnostic/follow-up/change, evidence and misconceptions.
-- LearningPlan: ordered typed tasks, status, estimated minutes, reason, outcome ID, future course action URL.
-- ClassInsight: outcome aggregates, misconceptions, question difficulty, support groups, evidence assessment IDs and explanation.
-- TeachingIntervention: professor/course/outcome IDs, evidence, suggested action, affected count and professor decision status.
-- OpportunityDashboard: career profile, skill gaps, project evidence, factor-ranked recommendations and current endorsement requests.
-- StudentEvidence: consented student summary, identical academic mastery, project/technical evidence, communication/collaboration evidence, request IDs.
-- Survey: audience, estimated minutes, active flag and nullable external URL.
+## Career and consent
 
-ISO dates remain strings in domain models. Percentages are validated to 0–100. Backend display content must use Uzbek Latin or a separately agreed localization contract.
+Dashboard: {profile,gaps,projects,recommendations,endorsementRequests,availableProfessors}. availableProfessors contains actual enrolled-course teachers; endorsement UI selects a real profile ID rather than hardcoding Azizbek. Projects are [] when actual artifact metadata is unavailable; project skill references do not become fabricated descriptions.
 
-## Request DTO details
+Five supported target-role IDs: role-frontend-developer, role-backend-developer, role-data-analyst, role-fullstack-developer, role-devops-engineer. Role selector supplies role ID + label together; server validates the ID and owns display vocabulary/readiness. Consent is {discoverable,peerRecommendations,professorEvidenceReview}. Unknown profile is a truthful unavailable state, not mock identity.
 
-- Submission: `{ answers: [{ questionId, optionId? , text? }] }`. Exactly one answer per assessment question. Multiple-choice uses only a valid option ID; short-answer uses only nonempty text. Student identity is taken from session/auth, never a request body.
-- CareerProfileUpdate: optional `targetRole` and `targetRoleId` supplied together, optional `interests`, optional full `consent` object with `discoverable`, `peerRecommendations`, `professorEvidenceReview`. Derived skills and readiness are not writable.
-- Recommendation update: `{ status: NEW | SAVED | ACCEPTED | DISMISSED }`. Saving/accepting changes only recommendation state; it does not claim participation or invent evidence.
-- EndorsementRequestInput: `{ professorId, opportunityId?, targetRole, consentToReview }`. Explicit review consent must be true.
-- EndorsementDecision: `{ requestId, status: APPROVED | DECLINED | NEEDS_DEVELOPMENT, feedback? }`. Only an owning professor may decide a requested, consented record.
-- Materials are JSON text for this phase. Confirm multipart uploads, file metadata and storage URLs before binary upload UI.
-- Generation operations use deterministic fixtures now. Confirm asynchronous AI job/result behavior before integration.
+Every recommendation contains its opportunity, bounded matching breakdown, explanation and NEW/SAVED/ACCEPTED/DISMISSED state. Weights: role alignment 30%, demonstrated skill evidence 25%, relevant gaps 20%, collaboration fit 15%, verification strength 10%. Backend determines real scores/readiness. Frontend calculateMatching is used by mock read models only; components never recompute real server scores.
 
-## Enum values
+Endorsement requests include student/professor profile IDs, opportunity|null, current target role, explicit consent, status, feedback, requestedAt and history. Equivalent pending requests are idempotent. Professor evidence requires live global review consent, request consent and a valid teaching relationship; withdrawal affects future server reads and decisions immediately. UI consent warnings and always-refetched evidence/candidate queries remain intact. Client guards do not grant evidence access or verification.
 
-| Type | Values |
-| --- | --- |
-| UserRole | STUDENT, PROFESSOR |
-| MasteryLevel | NEEDS_SUPPORT, DEVELOPING, PROFICIENT, MASTERED |
-| LearningTaskType | EXPLANATION, PRACTICE, MINI_PROJECT, FOLLOW_UP_DIAGNOSTIC |
-| TaskStatus | NOT_STARTED, IN_PROGRESS, COMPLETED |
-| QuestionType | MULTIPLE_CHOICE, SHORT_ANSWER |
-| AssessmentType | DIAGNOSTIC, FOLLOW_UP |
-| InterventionStatus | SUGGESTED, APPROVED, REJECTED |
-| OpportunityType | PEER, MENTOR, CLUB, PROJECT, INTERNSHIP, JOB |
-| RecommendationStatus | NEW, SAVED, ACCEPTED, DISMISSED |
-| CareerReadinessStage | FOUNDATION, PROJECT_READY, INTERNSHIP_READY, JUNIOR_READY |
-| EvidenceSourceType | ASSESSMENT, PROJECT, PROFESSOR_VERIFICATION |
-| VerificationStatus | UNVERIFIED, VERIFIED, PENDING |
-| EndorsementStatus | REQUESTED, APPROVED, DECLINED, NEEDS_DEVELOPMENT |
+Optional Gemini explanations/next-step/gap/draft endpoints are exposed by the backend; current UI uses grounded deterministic descriptions. AI never supplies grade, mastery, readiness, matching, consent, persisted decisions or verification. No Gemini credentials were required for real API integration.
 
-## Errors and transport
+## Surveys and cache
 
-Proposed backend failures: `{ code: string, message?: string, details?: unknown }` with the proper HTTP status. Frontend `ApiError` has normalized `code`, `status`, typed localized `messageKey`, optional validation/backend details and original cause. Untrusted server messages are never shown directly.
+Phase 7 loading/error/empty/inactive/missing-link/invalid-link/active presentations are preserved. HTTP survey URLs come only from SURVEY_STUDENT_URL/SURVEY_PROFESSOR_URL on the backend; supported HTTP(S) URLs without embedded credentials are normalized. Missing/invalid values yield inactive/null. Frontend adapter validates links again and links open with target=_blank + rel=noopener noreferrer. Offline public survey URL variables/scenarios remain supported; surveyUnavailable still works.
 
-Normalized codes: NOT_FOUND, VALIDATION_ERROR, NETWORK_ERROR, INVALID_RESPONSE, UNAUTHORIZED, FORBIDDEN, MOCK_ERROR, HTTP_ERROR, ABORTED. The original backend code is retained in details pending agreement on a shared code registry.
+Query keys are profile/role scoped. Mutation invalidation uses exact keys: grading → assessment/mastery/plan/dashboard/course/opportunity/recommendations; intervention → that course's interventions; career profile/consent → current student's opportunity/recommendations; endorsement → dashboard + specified professor candidate/evidence; professor decision → current professor's candidate/evidence and affected student opportunity dashboard. Mock cross-role dependencies remain for the shared offline database. Real role switches clear cache, so no guessed cross-role demo IDs are invalidated in HTTP mode. This is not cross-browser push synchronization; server access is always rechecked.
 
-HTTP supports GET/POST/PATCH, normalized base URL, JSON, encoded query parameters, AbortSignal, empty responses, and typed errors. An empty successful response returns undefined; services whose DTO schema requires JSON reject it as INVALID_RESPONSE. Requests are not retried by transport; the existing Query provider controls query retries.
+## Run and validate
 
-## Synthetic golden demo and mutations
+Backend needs PostgreSQL + JWT_SECRET. It starts without S3 or Gemini credentials when storage/LLM are disabled. Apply the additive v1 migration on a known target. Seed is gated by SEED_DISPOSABLE=true and refuses populated targets; it deletes no user data. Development-only demo accounts: student1@uniloop.local (Dilnoza), professor@uniloop.local (Azizbek); password123. See backend docs/api-v1.md for full server policy.
 
-Seed data: the exact Phase 2 professor, ten students including the exact demo student, one Programming Fundamentals course, four recursion outcomes, two five-question mixed assessments, misconceptions, a four-task plan, derived cohort insights, two interventions, one personal project, three club/project opportunities, a peer and mentor, six internships/junior roles, a requested endorsement, and two surveys. Career opportunities are synthetic descriptions, not live vacancies.
+Frontend serial validation: npm run lint; npx tsc --noEmit; npm run validate:data; npm run build; git diff --check. Do not run tsc concurrently with Next build. If only Turbopack listen EPERM prevents the build, use npm run build -- --webpack and report the infrastructure restriction separately.
 
-Dilnoza's diagnostic mastery is [85, 85, 35, 35], overall 60%. Its five-question correctness score is 40%; correctness score and outcome mastery are distinct measures. Demo mastery rubric assigns correct diagnostic feedback 85%, incorrect 35%; correct follow-up feedback 90%, incorrect 55%, averaging questions per outcome and then outcomes. These are transparent demo estimates, not a calibrated AI model. A fully correct follow-up yields 90% mastery. Six other students already have follow-up evidence.
+Offline validations cover references, safe reads, fixture DTOs, mock/HTTP equivalence, scenarios, grading, consent, recommendations, headers, 401 callbacks and scoped invalidation.
 
-Cohort diagnostic averages cover all enrolled students. Follow-up averages cover completed students only. Improvement compares each completed student's follow-up with that student's diagnostic baseline; it is not the difference between differently sized cohort averages. Missing follow-up remains null.
+Live mutating contract smoke (confirmed disposable server only): SMOKE_DISPOSABLE=true node scripts/validate-backend.mjs. Uses real feature APIs/central client/Zod/adapters across both roles; verifies session profile IDs, bearer headers, grading, mastery, plans, insights, decisions, consent, referrals, surveys, localized unavailable states, logout and 401 session clearing. Backend scripts/smoke-v1.mjs separately verifies database-level persistence/concurrency/security against its isolated test database.
 
-Submission replaces that student's result for the assessment and updates mastery, evidence, plan task statuses, course feedback, intervention affected counts, derived career skills, cohort insight and professor evidence. Resubmitting the diagnostic resets that student's follow-up stage and removes its follow-up result. Plan generation refreshes the existing deterministic plan. Outcome extraction and assessment/intervention generation return seeded fixtures; they do not run AI, publish an assessment, change a grade, or approve an intervention.
-
-Other mutations persist material text, profile/consent, recommendation status, endorsement request/decision/history, and intervention decisions in memory. Repeated pending endorsement requests for the same student/professor/target are idempotent. A full browser refresh restores the seed database; the selected demo auth role still persists. Switching roles without refresh retains the shared database.
-
-`empty` changes meaningful GET collections to valid empty values without destroying seed state. Mutations remain functional in this scenario. `error` rejects all operations with typed MOCK_ERROR and never mutates state. Default delay is a fixed 120ms, with cancellation before mutation.
-
-## Explainable matching
-
-`features/opportunities/matching.ts` calculates bounded 0–100 factors:
-
-| Factor | Weight | Meaning |
-| --- | --- | --- |
-| targetRoleAlignment | 30% | Target role ID matches |
-| demonstratedSkills | 25% | Fraction of required skills supported at >=70% mastery |
-| missingSkillRelevance | 20% | Fraction of identified gaps the opportunity addresses |
-| collaborationFit | 15% | Collaborative opportunity addresses missing collaboration evidence |
-| evidenceStrength | 10% | Mean mastery of related demonstrated skills |
-
-Weighted total ranks opportunity relevance. Named factors and an Uzbek explanation are always returned. Ties use stable recommendation IDs. There is no personality assessment or claim about a student's worth. Confirm role and skill taxonomy with the backend.
-
-## Consent and survey behavior
-
-The main student is not publicly discoverable. The seed represents explicit prior opt-in to peer recommendations and a requested professor endorsement. The peer candidate also explicitly opted in to discoverability and peer recommendations; other students have no discoverable career profile. Withdrawing peer consent removes peer results. Professor evidence requires both current review consent and a consented request for the owning professor; withdrawing consent also hides referral candidates. Requesting an endorsement with explicit consent restores review permission.
-
-Survey fixtures read external URLs only through the existing typed environment adapter. Empty survey variables produce null URLs; future UI must not render dead external links. HTTP backend survey data is runtime-validated and may supply the URL. Audience filtering is keyed by the authenticated role.
-
-## Queries, invalidation and validation
-
-Hooks cover student/professor dashboards, lists/detail, assessment/submission, mastery, plan generation/read, cohort insights, interventions/decision/generation, growth-plan generation, opportunity dashboard/recommendations/profile/status/request, referral candidates/evidence/decision, and role-filtered surveys.
-
-Keys include current demo user and role where payloads differ. Queries wait for auth hydration and the correct role. Mutations check the active role before execution. Assessment submission invalidates only its assessment, course/mastery/plan, student dashboard, career resources, and the owning professor's insight/intervention/referral evidence caches. Other mutations invalidate their own affected resources with exact keys.
-
-Run `npm run validate:data`: the installed TypeScript compiler loads validation source without an additional framework. It checks ID references, grading-key exclusion, DTO/schema boundaries, populated/empty/error scenarios, golden-demo mutations, consent withdrawal, recommendation factors, exact query invalidation, and HTTP JSON/error/abort behavior. `npm run lint`, `npx tsc --noEmit` and `npm run build` remain required; use `npm run build -- --webpack` only for the known sandbox Turbopack worker limitation.
-
-## Backend confirmations still needed
-
-Envelope/field casing; all provisional paths; pagination/cursors; role/skill IDs; JWT/401 contract; file upload format; AI generation jobs; mastery calibration; task completion endpoints; status transitions/idempotency; evidence verification; professor ownership/consent enforcement; survey URLs and audience policy. Keep changes inside contracts, adapters, endpoints and transport so later pages remain stable.
+Do not claim desktop/mobile visual, Gemini provider, Docker/deployment or a user's shared database runtime checks from API/unit builds alone. Current limitations include automated authoring, project artifact metadata, immutable attempts, token revocation/refresh, production cookie/session security, provisioning/rate limiting and multi-tenant institutional modeling.

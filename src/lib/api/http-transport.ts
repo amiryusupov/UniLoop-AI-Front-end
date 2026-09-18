@@ -3,13 +3,16 @@ import type { ApiTransport, TransportRequest } from "@/lib/api/transport";
 import { z } from "zod";
 
 const errorBodySchema = z.object({
-  code: z.string().optional(),
-  details: z.unknown().optional(),
+  error: z.object({
+    code: z.string(),
+    message: z.string(),
+    details: z.array(z.object({ message: z.string() })),
+  }),
 });
 export interface HttpTransportOptions {
   baseUrl: string;
   getAccessToken?: () => string | null | Promise<string | null>;
-  onUnauthorized?: () => void | Promise<void>;
+  onUnauthorized?: (token: string | null) => void | Promise<void>;
   fetcher?: typeof fetch;
 }
 export function createHttpTransport(
@@ -36,6 +39,7 @@ export function createHttpTransport(
         response = await (options.fetcher ?? fetch)(url, {
           method: endpoint.method,
           headers,
+          cache: "no-store",
           signal,
           body: body === undefined ? undefined : JSON.stringify(body),
         });
@@ -87,7 +91,8 @@ export function createHttpTransport(
       }
       if (!response.ok) {
         const parsed = errorBodySchema.safeParse(payload);
-        if (response.status === 401) await options.onUnauthorized?.();
+        if (response.status === 401)
+          await options.onUnauthorized?.(token ?? null);
         const code =
           response.status === 401
             ? "UNAUTHORIZED"
@@ -97,7 +102,15 @@ export function createHttpTransport(
                 ? "NOT_FOUND"
                 : response.status === 422 || response.status === 400
                   ? "VALIDATION_ERROR"
-                  : "HTTP_ERROR";
+                  : response.status === 409
+                    ? "CONFLICT"
+                    : response.status === 429
+                      ? "RATE_LIMITED"
+                      : response.status === 503
+                        ? "UNAVAILABLE"
+                        : response.status >= 500 && parsed.success
+                          ? "INTERNAL_ERROR"
+                          : "HTTP_ERROR";
         throw new ApiError(
           code,
           response.status,
@@ -109,7 +122,13 @@ export function createHttpTransport(
                 ? "apiNotFound"
                 : code === "VALIDATION_ERROR"
                   ? "apiValidationError"
-                  : "generalError",
+                  : code === "CONFLICT"
+                    ? "apiConflict"
+                    : code === "RATE_LIMITED"
+                      ? "apiRateLimited"
+                      : code === "UNAVAILABLE"
+                        ? "apiUnavailable"
+                        : "generalError",
           parsed.success ? parsed.data : undefined,
         );
       }

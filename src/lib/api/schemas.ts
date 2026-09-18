@@ -16,11 +16,11 @@ export const evidenceSchema = z.object({
 export const userFields = {
   id: idSchema,
   fullName: z.string().min(1),
-  university: z.string().min(1),
-  faculty: z.string().min(1),
+  university: z.string(),
+  faculty: z.string(),
   avatarLabel: z.string().min(1),
-  universityId: idSchema,
-  facultyId: idSchema,
+  universityId: idSchema.nullable(),
+  facultyId: idSchema.nullable(),
 };
 export const studentSchema = z.object({
   ...userFields,
