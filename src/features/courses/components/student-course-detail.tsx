@@ -17,7 +17,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { useCourse } from "@/features/courses/queries";
 import { useMastery } from "@/features/mastery/queries";
-import { masteryPresentation } from "@/features/mastery/presentation";
+import {
+  formatMasteryPercentage,
+  masteryPresentation,
+} from "@/features/mastery/presentation";
 import { t } from "@/i18n";
 
 export function StudentCourseDetail({ courseId }: { courseId: string }) {
@@ -88,7 +91,7 @@ export function StudentCourseDetail({ courseId }: { courseId: string }) {
           </CardHeader>
           <CardContent>
             <p className="font-heading text-4xl font-semibold">
-              {mastery.data?.overallPercentage ?? 0}%
+              {formatMasteryPercentage(mastery.data)}
             </p>
             <Progress
               aria-label={t("accessibilityProgress")}

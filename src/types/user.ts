@@ -12,11 +12,11 @@ export interface Faculty {
 }
 export interface StudentSummary extends AuthUser {
   role: "STUDENT";
-  universityId: string;
-  facultyId: string;
+  universityId: string | null;
+  facultyId: string | null;
 }
 export interface ProfessorSummary extends AuthUser {
   role: "PROFESSOR";
-  universityId: string;
-  facultyId: string;
+  universityId: string | null;
+  facultyId: string | null;
 }

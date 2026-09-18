@@ -145,7 +145,7 @@ export function createMockDatabase(): MockDatabase {
       feedback,
       outcomeImpacts: mastery.outcomes.map((item) => ({
         outcomeId: item.outcomeId,
-        previousPercentage: item.diagnosticPercentage,
+        previousPercentage: item.diagnosticPercentage ?? 0,
         percentage: item.percentage,
         change: item.change,
       })),

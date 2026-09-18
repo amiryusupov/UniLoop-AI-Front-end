@@ -11,5 +11,8 @@ export interface AuthUser {
 
 export interface AuthSession {
   user: AuthUser;
-  mode: "DEMO";
+  mode: "DEMO" | "HTTP";
+}
+export interface AuthenticatedUser extends AuthUser {
+  profileId: string;
 }

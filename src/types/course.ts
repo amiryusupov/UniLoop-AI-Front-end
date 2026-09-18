@@ -25,6 +25,7 @@ export interface AssessmentSummary {
   title: string;
   type: AssessmentType;
   questionCount: number;
+  submissionCount?: number;
 }
 export interface CourseSummary {
   id: string;

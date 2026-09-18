@@ -63,12 +63,15 @@ export function validateAcademicData(db: MockDatabase): void {
   idSet(db.surveys, "survey");
   for (const faculty of db.faculties)
     ensure(
-      universities.has(faculty.universityId),
+      faculty.universityId !== null && universities.has(faculty.universityId),
       "Faculty university reference",
     );
   for (const user of [...db.students, ...db.professors]) {
     ensure(
-      universities.has(user.universityId) && faculties.has(user.facultyId),
+      user.universityId !== null &&
+        user.facultyId !== null &&
+        universities.has(user.universityId) &&
+        faculties.has(user.facultyId),
       "User organization reference",
     );
     const faculty = db.faculties.find((item) => item.id === user.facultyId);

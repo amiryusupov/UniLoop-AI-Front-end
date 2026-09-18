@@ -5,8 +5,7 @@ import {
   useQueryClient,
   type QueryKey,
 } from "@tanstack/react-query";
-import { useAuthStore } from "@/features/auth/store";
-import { getDemoUser } from "@/features/auth/demo-users";
+import { useAuthStore, sessionProfileId } from "@/features/auth/store";
 import type { UserRole } from "@/features/auth/types";
 import { ApiError } from "@/lib/api/errors";
 import { invalidateQueryKeys } from "@/lib/api/query-keys";
@@ -14,9 +13,14 @@ import { invalidateQueryKeys } from "@/lib/api/query-keys";
 export function useQueryContext(expectedRole: UserRole) {
   const role = useAuthStore((state) => state.role);
   const hydrated = useAuthStore((state) => state.hydrated);
+  const user = useAuthStore((state) => state.user);
   return {
-    userId: role ? getDemoUser(role).id : "anonymous",
-    enabled: hydrated && role === expectedRole,
+    userId: user
+      ? "profileId" in user
+        ? user.profileId
+        : user.id
+      : "anonymous",
+    enabled: hydrated && !!user && role === expectedRole,
   };
 }
 export function useRoleMutation<TData, TVariables>(
@@ -36,7 +40,7 @@ export function useRoleMutation<TData, TVariables>(
         throw new ApiError("UNAUTHORIZED", 401, "apiUnauthorized");
       if (state.role !== expectedRole)
         throw new ApiError("FORBIDDEN", 403, "apiForbidden");
-      return { userId: getDemoUser(state.role).id };
+      return { userId: sessionProfileId() };
     },
     mutationFn: mutate,
     onSuccess: async (data, variables, context) => {

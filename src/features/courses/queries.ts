@@ -5,6 +5,7 @@ import {
   useQueryContext,
   useRoleMutation,
 } from "@/features/auth/query-context";
+import { env } from "@/lib/env";
 import { getDemoUser } from "@/features/auth/demo-users";
 import type { UserRole } from "@/features/auth/types";
 import {
@@ -57,9 +58,17 @@ export function useCourse(courseId: string, role: UserRole) {
 function courseMutationKeys(professorId: string, courseId: string) {
   return [
     queryKeys.courses.detail("PROFESSOR", professorId, courseId),
-    queryKeys.courses.detail("STUDENT", getDemoUser("STUDENT").id, courseId),
-    queryKeys.professors.courses(professorId),
-    queryKeys.students.courses(getDemoUser("STUDENT").id),
+    ...(env.useMocks
+      ? [
+          queryKeys.courses.detail(
+            "STUDENT",
+            getDemoUser("STUDENT").id,
+            courseId,
+          ),
+          queryKeys.professors.courses(professorId),
+          queryKeys.students.courses(getDemoUser("STUDENT").id),
+        ]
+      : []),
   ];
 }
 export function useUploadCourseMaterial(courseId: string) {
@@ -86,7 +95,7 @@ export function useGenerateCourseAssessment(courseId: string) {
     (type: AssessmentType) => generateCourseAssessment(courseId, type),
     (data, _input, userId) => [
       ...courseMutationKeys(userId, courseId),
-      queryKeys.assessments.detail(getDemoUser("STUDENT").id, data.id),
+      queryKeys.assessments.professorDetail(userId, data.id),
     ],
   );
 }

@@ -14,7 +14,7 @@ export const masterySchema = z.object({
       outcomeId: idSchema,
       percentage: percentageSchema,
       level: z.enum(["NEEDS_SUPPORT", "DEVELOPING", "PROFICIENT", "MASTERED"]),
-      diagnosticPercentage: percentageSchema,
+      diagnosticPercentage: percentageSchema.nullable(),
       followUpPercentage: percentageSchema.nullable(),
       change: z.number().min(-100).max(100),
       evidence: z.array(evidenceSchema),

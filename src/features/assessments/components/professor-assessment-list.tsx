@@ -13,6 +13,7 @@ import { useCourse } from "@/features/courses/queries";
 import { assessmentTypePresentation } from "@/features/assessments/presentation";
 import { useProfessorAssessment } from "@/features/assessments/queries";
 import { t } from "@/i18n";
+import { env } from "@/lib/env";
 
 export function ProfessorAssessmentList({ courseId }: { courseId: string }) {
   const course = useCourse(courseId, "PROFESSOR");
@@ -65,13 +66,15 @@ export function ProfessorAssessmentList({ courseId }: { courseId: string }) {
         </p>
       </header>
       <ProfessorCourseNavigation courseId={courseId} />
+      {!env.useMocks ? (
+        <p className="mb-5 rounded-lg border border-border bg-muted/40 p-4 text-sm text-muted-foreground">
+          {t("authoringUnavailable")}
+        </p>
+      ) : null}
       <div className="grid gap-4 md:grid-cols-2">
         {course.data.assessments.map((assessment) => {
           const presentation = assessmentTypePresentation[assessment.type];
-          const completion =
-            assessment.type === "FOLLOW_UP"
-              ? (insight.data.outcomes[0]?.followUpStudentCount ?? 0)
-              : insight.data.studentCount;
+          const completion = assessment.submissionCount ?? "—";
           return (
             <Card key={assessment.id}>
               <CardHeader>

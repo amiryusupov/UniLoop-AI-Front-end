@@ -6,7 +6,10 @@ import { ErrorState } from "@/components/feedback/error-state";
 import { LoadingState } from "@/components/feedback/loading-state";
 import { Badge } from "@/components/ui/badge";
 import { useCourse } from "@/features/courses/queries";
-import { masteryPresentation } from "@/features/mastery/presentation";
+import {
+  formatMasteryPercentage,
+  masteryPresentation,
+} from "@/features/mastery/presentation";
 import {
   evidenceSourcePresentation,
   verificationPresentation,
@@ -36,7 +39,8 @@ export function AcademicEvidenceCard({ mastery }: { mastery: MasterySummary }) {
       <div className="mb-4 flex flex-wrap justify-between gap-3">
         <h4 className="font-heading font-semibold">{course.data.title}</h4>
         <p className="text-sm">
-          {t("overallMastery")}: <strong>{mastery.overallPercentage}%</strong>
+          {t("overallMastery")}:{" "}
+          <strong>{formatMasteryPercentage(mastery)}</strong>
         </p>
       </div>
       <div className="grid gap-3 md:grid-cols-2">
@@ -58,8 +62,11 @@ export function AcademicEvidenceCard({ mastery }: { mastery: MasterySummary }) {
               </Badge>
             </div>
             <p className="mt-2 text-xs text-muted-foreground">
-              {t("diagnosticScore")}: {outcome.diagnosticPercentage}% ·{" "}
-              {t("followUpScore")}:{" "}
+              {t("diagnosticScore")}:{" "}
+              {outcome.diagnosticPercentage === null
+                ? "—"
+                : `${outcome.diagnosticPercentage}%`}{" "}
+              · {t("followUpScore")}:{" "}
               {outcome.followUpPercentage === null
                 ? "—"
                 : `${outcome.followUpPercentage}%`}

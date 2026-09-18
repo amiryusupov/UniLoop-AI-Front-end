@@ -1,5 +1,5 @@
-import { SurveyFeedbackPage } from "@/features/surveys/components/survey-feedback-page";
+import { SurveysScreen } from "@/features/surveys/components/surveys-screen";
 
 export default function StudentSurveysPage() {
-  return <SurveyFeedbackPage />;
+  return <SurveysScreen role="STUDENT" />;
 }

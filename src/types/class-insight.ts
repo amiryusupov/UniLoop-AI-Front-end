@@ -1,6 +1,6 @@
 export interface CohortOutcomeInsight {
   outcomeId: string;
-  diagnosticPercentage: number;
+  diagnosticPercentage: number | null;
   followUpPercentage: number | null;
   improvement: number | null;
   followUpStudentCount: number;

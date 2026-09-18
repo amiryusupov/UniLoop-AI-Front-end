@@ -64,7 +64,7 @@ export function getCourse(
   client: ApiClient = getApiClient(),
 ) {
   return client.request(
-    { endpoint: endpoints.courseDetail(courseId), role, signal },
+    { endpoint: endpoints.courseDetail(courseId, role), role, signal },
     courseResponseSchema,
     (dto) => adaptCourseDetail(dto.data),
   );

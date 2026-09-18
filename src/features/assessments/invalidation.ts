@@ -1,4 +1,5 @@
 import { getDemoUser } from "@/features/auth/demo-users";
+import { env } from "@/lib/env";
 import { queryKeys } from "@/lib/api/query-keys";
 
 export function assessmentMutationKeys(
@@ -15,9 +16,13 @@ export function assessmentMutationKeys(
     queryKeys.courses.detail("STUDENT", studentId, courseId),
     queryKeys.opportunities.dashboard(studentId),
     queryKeys.opportunities.recommendations(studentId),
-    queryKeys.professorInsights.byCourse(professorId, courseId),
-    queryKeys.interventions.byCourse(professorId, courseId),
-    queryKeys.referrals.candidates(professorId),
-    queryKeys.referrals.evidence(professorId, studentId),
+    ...(env.useMocks
+      ? [
+          queryKeys.professorInsights.byCourse(professorId, courseId),
+          queryKeys.interventions.byCourse(professorId, courseId),
+          queryKeys.referrals.candidates(professorId),
+          queryKeys.referrals.evidence(professorId, studentId),
+        ]
+      : []),
   ];
 }

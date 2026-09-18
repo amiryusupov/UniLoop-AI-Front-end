@@ -21,7 +21,12 @@ export function QuestionDifficultyTable({
   const outcomeNames = new Map(outcomes.map((item) => [item.id, item.title]));
   const questionsById = new Map(questions.map((item) => [item.id, item]));
   return (
-    <div className="overflow-x-auto rounded-xl border border-border bg-card">
+    <div
+      tabIndex={0}
+      role="region"
+      aria-label={t("questionDifficulty")}
+      className="overflow-x-auto rounded-xl border border-border bg-card focus-visible:outline-2 focus-visible:outline-ring"
+    >
       <table className="w-full min-w-220 text-left text-sm">
         <caption className="sr-only">{t("questionDifficulty")}</caption>
         <thead className="border-b border-border bg-muted/50 text-xs text-muted-foreground">
@@ -36,7 +41,9 @@ export function QuestionDifficultyTable({
         <tbody>
           {items.map((item, index) => {
             const question = questionsById.get(item.questionId);
-            const presentation = difficultyPresentation(item.difficultyPercentage);
+            const presentation = difficultyPresentation(
+              item.difficultyPercentage,
+            );
             const misconception = misconceptions.find(
               (entry) => entry.outcomeId === question?.outcomeId,
             );

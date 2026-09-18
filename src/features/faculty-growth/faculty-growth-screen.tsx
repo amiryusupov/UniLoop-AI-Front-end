@@ -1,19 +1,36 @@
 "use client";
 
-import { useState } from "react";
 import { BookOpenCheck, FlaskConical, ListChecks } from "lucide-react";
 import { EmptyState } from "@/components/feedback/empty-state";
 import { PageContainer } from "@/components/shared/page-container";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useGenerateProfessorGrowthPlan } from "@/features/interventions/queries";
+import {
+  useGenerateProfessorGrowthPlan,
+  useProfessorGrowthPlan,
+} from "@/features/interventions/queries";
+import { LoadingState } from "@/components/feedback/loading-state";
+import { ErrorState } from "@/components/feedback/error-state";
+import { MutationFeedback } from "@/components/feedback/mutation-feedback";
 import { t } from "@/i18n";
-import type { ProfessorGrowthPlan } from "@/types/intervention";
 
 export function FacultyGrowthScreen() {
   const generate = useGenerateProfessorGrowthPlan();
-  const [plan, setPlan] = useState<ProfessorGrowthPlan | null>(null);
-  if (!plan)
+  const query = useProfessorGrowthPlan();
+  const plan = query.data;
+  if (query.isLoading)
+    return (
+      <PageContainer className="py-8">
+        <LoadingState cards={2} />
+      </PageContainer>
+    );
+  if (query.isError)
+    return (
+      <PageContainer className="py-8">
+        <ErrorState retry={() => void query.refetch()} />
+      </PageContainer>
+    );
+  if (!plan?.actions.length)
     return (
       <PageContainer className="py-8 sm:py-10">
         <header className="mb-7">
@@ -31,12 +48,18 @@ export function FacultyGrowthScreen() {
         <div className="mt-5 text-center">
           <Button
             disabled={generate.isPending}
-            onClick={() => generate.mutate(undefined, { onSuccess: setPlan })}
+            onClick={() => generate.mutate(undefined)}
             type="button"
           >
             <ListChecks aria-hidden="true" />
             {generate.isPending ? t("loading") : t("generateGrowthPlan")}
           </Button>
+          <MutationFeedback
+            pending={generate.isPending}
+            error={generate.isError}
+            success={generate.isSuccess}
+            successMessage="growthPlanReady"
+          />
         </div>
       </PageContainer>
     );

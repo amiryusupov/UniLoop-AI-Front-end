@@ -154,6 +154,7 @@ export function OpportunityDashboardScreen() {
         aria-label={t("navProfessorEndorsement")}
       >
         <EndorsementPanel
+          availableProfessors={dashboard.data.availableProfessors}
           profile={profile}
           recommendations={recommendations}
           requests={endorsementRequests}

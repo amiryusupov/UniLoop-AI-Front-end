@@ -9,7 +9,7 @@ export const insightSchema = z.object({
   outcomes: z.array(
     z.object({
       outcomeId: idSchema,
-      diagnosticPercentage: percentageSchema,
+      diagnosticPercentage: percentageSchema.nullable(),
       followUpPercentage: percentageSchema.nullable(),
       improvement: z.number().min(-100).max(100).nullable(),
       followUpStudentCount: z.number().int().nonnegative(),

@@ -7,6 +7,6 @@ export const surveySchema = z.object({
   audience: roleSchema,
   estimatedMinutes: z.number().int().positive(),
   active: z.boolean(),
-  externalUrl: z.string().url().nullable(),
+  externalUrl: z.string().nullable().optional(),
 });
 export const surveysResponseSchema = dtoEnvelope(z.array(surveySchema));

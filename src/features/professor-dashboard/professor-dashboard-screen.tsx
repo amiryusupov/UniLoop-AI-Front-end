@@ -64,7 +64,7 @@ export function ProfessorDashboardScreen() {
       </PageContainer>
     );
   const attention = [...insight.data.outcomes].sort(
-    (a, b) => a.diagnosticPercentage - b.diagnosticPercentage,
+    (a, b) => (a.diagnosticPercentage ?? 101) - (b.diagnosticPercentage ?? 101),
   )[0];
   const outcomeTitle = courseDetail.data?.outcomes.find(
     (item) => item.id === attention?.outcomeId,
@@ -151,15 +151,17 @@ export function ProfessorDashboardScreen() {
                   {outcomeTitle ?? t("learningOutcomes")}
                 </p>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  {attention.diagnosticPercentage}% ·{" "}
-                  {attention.supportStudentIds.length}{" "}
+                  {attention.diagnosticPercentage === null
+                    ? "—"
+                    : `${attention.diagnosticPercentage}%`}{" "}
+                  · {attention.supportStudentIds.length}{" "}
                   {t("affectedStudents").toLocaleLowerCase("uz")}
                 </p>
                 <p className="mt-3 text-sm text-muted-foreground">
                   {t("diagnosticFollowUp")}:{" "}
                   {attention.followUpPercentage === null
                     ? "—"
-                    : `${attention.followUpPercentage}% (+${attention.improvement ?? 0}%)`}
+                    : `${attention.followUpPercentage}% (${attention.improvement === null ? "—" : `${attention.improvement >= 0 ? "+" : ""}${attention.improvement}%`})`}
                 </p>
                 <Button asChild className="mt-4" size="sm" variant="outline">
                   <Link href={`/professor/courses/${courseId}/insights`}>

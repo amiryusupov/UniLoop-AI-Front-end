@@ -17,7 +17,7 @@ export function getAssessment(
   role: UserRole = "STUDENT",
 ) {
   return client.request(
-    { endpoint: endpoints.assessment(assessmentId), role, signal },
+    { endpoint: endpoints.assessment(assessmentId, role), role, signal },
     assessmentResponseSchema,
     (dto) => adaptAssessment(dto.data),
   );
@@ -31,7 +31,12 @@ export function submitAssessment(
     {
       endpoint: endpoints.submitAssessment(assessmentId),
       role: "STUDENT",
-      body: input,
+      body: {
+        answers: input.answers.map(({ text, ...answer }) => ({
+          ...answer,
+          ...(text !== undefined ? { answer: text } : {}),
+        })),
+      },
     },
     submissionResponseSchema,
     adaptSubmission,

@@ -13,7 +13,10 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { useCourse } from "@/features/courses/queries";
 import { useMastery } from "@/features/mastery/queries";
-import { masteryPresentation } from "@/features/mastery/presentation";
+import {
+  formatMasteryPercentage,
+  masteryPresentation,
+} from "@/features/mastery/presentation";
 import { Badge } from "@/components/ui/badge";
 import { t } from "@/i18n";
 import type { CourseSummary } from "@/types/course";
@@ -22,8 +25,11 @@ export function StudentCourseCard({ course }: { course: CourseSummary }) {
   const detail = useCourse(course.id, "STUDENT");
   const mastery = useMastery(course.id);
   const current = mastery.data;
-  const level = current?.outcomes.length
-    ? current.outcomes.reduce((lowest, item) =>
+  const assessed = current?.outcomes.filter(
+    (outcome) => outcome.evidence.length,
+  );
+  const level = assessed?.length
+    ? assessed.reduce((lowest, item) =>
         item.percentage < lowest.percentage ? item : lowest,
       ).level
     : null;
@@ -49,7 +55,7 @@ export function StudentCourseCard({ course }: { course: CourseSummary }) {
         <div>
           <div className="mb-2 flex items-center justify-between text-sm">
             <span>{t("overallMastery")}</span>
-            <strong>{current ? `${current.overallPercentage}%` : "—"}</strong>
+            <strong>{formatMasteryPercentage(current)}</strong>
           </div>
           <Progress
             aria-label={t("accessibilityProgress")}
@@ -68,11 +74,10 @@ export function StudentCourseCard({ course }: { course: CourseSummary }) {
           <div>
             <p className="text-muted-foreground">{t("completedAssessments")}</p>
             <p className="mt-1 font-medium">
-              {current?.outcomes.some(
-                (item) => item.followUpPercentage !== null,
-              )
-                ? "2"
-                : "1"}
+              {detail.data?.assessments.reduce(
+                (sum, assessment) => sum + (assessment.submissionCount ?? 0),
+                0,
+              ) ?? "—"}
             </p>
           </div>
           <div>

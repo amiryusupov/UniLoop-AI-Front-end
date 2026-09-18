@@ -103,6 +103,9 @@ export const opportunityDashboardSchema = z.object({
   projects: z.array(projectSchema),
   recommendations: z.array(recommendationSchema),
   endorsementRequests: z.array(endorsementSchema),
+  availableProfessors: z.array(
+    z.object({ id: idSchema, fullName: z.string().min(1) }),
+  ),
 });
 export const opportunityResponseSchema = dtoEnvelope(
   opportunityDashboardSchema,

@@ -8,6 +8,16 @@ export function applyMockScenario(
   endpoint: ApiEndpoint,
   response: unknown,
 ): unknown {
+  if (scenario === "surveyUnavailable" && endpoint.name === "surveys") {
+    const { data } = z.object({ data: z.array(z.unknown()) }).parse(response);
+    return {
+      data: data.map((item) => ({
+        ...z.record(z.string(), z.unknown()).parse(item),
+        active: false,
+        externalUrl: null,
+      })),
+    };
+  }
   if (scenario !== "empty" || endpoint.method !== "GET") return response;
   const { data } = z.object({ data: z.unknown() }).parse(response);
   if (Array.isArray(data)) return { data: [] };

@@ -16,7 +16,11 @@ type RoleGuardProps = {
 
 function SessionLoading() {
   return (
-    <main aria-busy="true" aria-live="polite" className="flex min-h-screen items-center justify-center p-6">
+    <main
+      aria-busy="true"
+      aria-live="polite"
+      className="flex min-h-screen items-center justify-center p-6"
+    >
       <div className="w-full max-w-sm space-y-4">
         <span className="sr-only">{t("loadingSession")}</span>
         <Skeleton className="h-7 w-40" />
@@ -32,7 +36,7 @@ export function RoleGuard({ expectedRole, children }: RoleGuardProps) {
   const role = useAuthStore((state) => state.role);
 
   useEffect(() => {
-    // Backend integration will replace this client-side demo guard with server-enforced authentication.
+    // Navigation UX only: every protected API enforces JWT, role and ownership server-side.
     if (!hydrated) {
       return;
     }

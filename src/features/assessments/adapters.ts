@@ -9,12 +9,12 @@ export function adaptAssessment(
   dto: z.output<typeof assessmentDtoSchema>,
 ): Assessment {
   return {
-    id: dto.assessment_id,
-    courseId: dto.course_id,
-    type: dto.assessment_type,
+    id: dto.id,
+    courseId: dto.courseId,
+    type: dto.type,
     title: dto.title,
     questions: dto.questions,
-    estimatedMinutes: dto.estimated_minutes,
+    estimatedMinutes: dto.estimatedMinutes,
   };
 }
 export function adaptSubmission(

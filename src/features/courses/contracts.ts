@@ -21,17 +21,17 @@ export const materialSchema = z.object({
   uploadedAt: timestampSchema,
 });
 export const courseSummaryDtoSchema = z.object({
-  course_id: idSchema,
+  id: idSchema,
   title: z.string(),
   code: z.string(),
-  professor_id: idSchema,
-  student_count: z.number().int().nonnegative(),
-  outcome_count: z.number().int().nonnegative(),
+  professorId: idSchema,
+  studentCount: z.number().int().nonnegative(),
+  outcomeCount: z.number().int().nonnegative(),
 });
 export const courseDetailDtoSchema = courseSummaryDtoSchema.extend({
   description: z.string(),
-  teacher: professorSchema,
-  learners: z.array(studentSchema),
+  professor: professorSchema,
+  students: z.array(studentSchema),
   enrollments: z.array(
     z.object({
       studentId: idSchema,
@@ -48,9 +48,10 @@ export const courseDetailDtoSchema = courseSummaryDtoSchema.extend({
       title: z.string(),
       type: z.enum(["DIAGNOSTIC", "FOLLOW_UP"]),
       questionCount: z.number().int().nonnegative(),
+      submissionCount: z.number().int().nonnegative(),
     }),
   ),
-  latest_feedback: z.string().nullable(),
+  latestFeedback: z.string().nullable(),
 });
 export const dashboardSchema = z.object({
   userId: idSchema,

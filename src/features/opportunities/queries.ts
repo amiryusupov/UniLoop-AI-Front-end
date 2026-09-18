@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { env } from "@/lib/env";
 import { getDemoUser } from "@/features/auth/demo-users";
 import {
   useQueryContext,
@@ -46,7 +47,10 @@ export function useUpdateCareerProfile() {
     "STUDENT",
     (input: CareerProfileUpdate) => updateCareerProfile(input),
     (_data, _input, userId) =>
-      careerProfileMutationKeys(userId, getDemoUser("PROFESSOR").id),
+      careerProfileMutationKeys(
+        userId,
+        env.useMocks ? getDemoUser("PROFESSOR").id : undefined,
+      ),
   );
 }
 export function useUpdateRecommendation() {

@@ -91,6 +91,35 @@ export async function validateScenarios(): Promise<void> {
       .academic.length === 0,
     "Empty student evidence",
   );
+  const unavailableDb = createMockDatabase();
+  const unavailableClient = createApiClient(
+    createMockTransport({
+      database: unavailableDb,
+      scenario: "surveyUnavailable",
+      delayMs: 0,
+    }),
+  );
+  const unavailableSurveys = await getSurveys(
+    "STUDENT",
+    undefined,
+    unavailableClient,
+  );
+  ensure(
+    unavailableSurveys.length === 1 &&
+      !unavailableSurveys[0].active &&
+      unavailableSurveys[0].externalUrl === null,
+    "Unavailable survey scenario",
+  );
+  const invalidUrlDb = createMockDatabase();
+  invalidUrlDb.surveys[0].externalUrl = "not-a-url";
+  const invalidUrlClient = createApiClient(
+    createMockTransport({ database: invalidUrlDb, delayMs: 0 }),
+  );
+  ensure(
+    (await getSurveys("STUDENT", undefined, invalidUrlClient))[0]
+      .externalUrl === null,
+    "Invalid survey URL becomes unavailable without breaking the response",
+  );
   const failed = createApiClient(
     createMockTransport({ database: db, scenario: "error", delayMs: 0 }),
   );
